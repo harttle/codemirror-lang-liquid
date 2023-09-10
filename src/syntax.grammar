@@ -1,26 +1,58 @@
-@top Program { expression* }
+@top Program { LiquidTemplate* }
+@precedence { Output, Tag, HTML }
 
-@skip { space | LineComment }
-
-expression {
-  Identifier |
-  String |
-  Boolean |
-  Application { "(" expression* ")" }
+LiquidTemplate {
+  Output |
+  Tag |
+  HTML
 }
 
+Output { beginOutput dash? space? FilteredExpression ~ambig space? dash? endOutput }
+Tag { beginTag dash? space? TagName (space TagArg ~id)* space? dash? endTag }
+
+TagArg { Identifier | KeyValuePair | any }
+
+TagName { Identifier }
+
+FilteredExpression { Expression (~ambig space? Filter)* }
+
+Expression { (Identifier | SquareBracketProperty | Literal) ~id PropertyAccess* }
+
+Filter { "|" space? Identifier space? ":" space? FilterArgs ~filterarg }
+
+FilterArgs { FilterArg (~filterarg space? "," space? FilterArg)* }
+
+FilterArg { Expression | KeyValuePair }
+
+KeyValuePair { Identifier ~id space? ":" space? Expression ~ambig }
+
+SquareBracketProperty { "[" Expression "]" }
+
+PropertyAccess { "." Identifier }
+
+Literal { Quoted | Range | Number | Boolean | DropLiteral | Null }
+
+Range { "(" space? Expression space? "," space? Expression space? ")"}
+
 @tokens {
-  Identifier { $[a-zA-Z_\-0-9]+ }
+    beginTag { "{%" }
+    beginOutput { "{{" }
+    endTag { "%}" }
+    endOutput { "}}" }
 
-  String { '"' (!["\\] | "\\" _)* '"' }
+    Identifier { @asciiLetter (@asciiLetter | @digit | "_")* }
+    Number { @digit+ ("." @digit+)? }
+    Quoted { '"' (!["] | '\"')* '"' }
+    Boolean { "true" | "false" }
+    Null { "nil" | "null" }
+    DropLiteral { "empty" | "blank" | "forloop" }
+    HTML { (![{] | "{" ![{%])+ }
 
-  Boolean { "#t" | "#f" }
+    space { @whitespace+ }
+    dash { dash }
+    any { ![]+ }
 
-  LineComment { ";" ![\n]* }
-
-  space { $[ \t\n\r]+ }
-
-  "(" ")"
+    @precedence { beginTag, beginOutput, DropLiteral, Boolean, Null, Quoted, Number, Identifier, dash, endTag, endOutput, any }
 }
 
 @detectDelim

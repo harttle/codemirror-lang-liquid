@@ -1,41 +1,93 @@
-# Booleans
+# HTML
 
-#t
-#f
-
-==>
-
-Program(Boolean, Boolean)
-
-# Identifiers
-
-one
-Two_Three
+<div></div>
+{}
 
 ==>
 
-Program(Identifier, Identifier)
+Program(LiquidTemplate(HTML))
 
-# Strings
+# Ouput
 
-"hello"
-"one\"\\two"
-
-==>
-
-Program(String, String)
-
-# Applications
-
-(begin
-  (when #t
-    (print (concat "hello" " " "world")))
-  (print "DONE"))
+{{ foo }}
 
 ==>
 
-Program(Application(
-  Identifier,
-  Application(Identifier, Boolean, Application(
-    Identifier, Application(Identifier, String, String, String)))
-  Application(Identifier, String)))
+Program(
+  LiquidTemplate(Output(FilteredExpression(Expression(Identifier))))
+)
+
+# Filter
+
+{{ foo | size: 3 }}
+
+==>
+
+Program(
+  LiquidTemplate(
+    Output(
+      FilteredExpression(
+        Expression(Identifier),
+        Filter(
+          Identifier,
+          FilterArgs(
+            FilterArg(
+              Expression(Literal(Number))
+            )
+          )
+        )
+      )
+    )
+  )
+)
+
+# Boolean
+
+{{ true }}
+{{ false }}
+
+==>
+
+Program(
+  LiquidTemplate(Output(FilteredExpression(Expression(Literal(Boolean)))))
+  LiquidTemplate(HTML)
+  LiquidTemplate(Output(FilteredExpression(Expression(Literal(Boolean)))))
+)
+
+# Property Access
+
+{{ foo.bar }}
+
+==>
+
+Program(
+  LiquidTemplate(
+    Output(
+      FilteredExpression(
+        Expression(
+          Identifier,
+          PropertyAccess(Identifier)
+        )
+      )
+    )
+  )
+)
+
+# Square Bracket Property Access
+
+{{ foo["bar"] }}
+
+==>
+
+Program(
+  LiquidTemplate(
+    Output(
+      FilteredExpression(
+        Expression(
+          Identifier,
+          PropertyAccess(Identifier)
+        )
+      )
+    )
+  )
+)

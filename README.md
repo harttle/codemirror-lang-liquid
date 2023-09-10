@@ -1,21 +1,12 @@
-# CodeMirror 6 language package template
+# Liquid language package for CodeMirror 6
 
-This is an example repository containing a minimal [CodeMirror](https://codemirror.net/6/) language support package. The idea is to clone it, rename it, and edit it to create support for a new language.
+This is Liquid language package for CodeMirror 6.
 
-Things you'll need to do (see the [language support example](https://codemirror.net/6/examples/lang-package/) for a more detailed tutorial):
+## Features
 
- * `git grep EXAMPLE` and replace all instances with your language name.
+- 
 
- * Rewrite the grammar in `src/syntax.grammar` to cover your language. See the [Lezer system guide](https://lezer.codemirror.net/docs/guide/#writing-a-grammar) for information on this file format.
+## Principles
 
- * Adjust the metadata in `src/index.ts` to work with your new grammar.
-
- * Adjust the grammar tests in `test/cases.txt`.
-
- * Build (`npm run prepare`) and test (`npm test`).
-
- * Rewrite this readme file.
-
- * Optionally add a license.
-
- * Publish. Put your package on npm under a name like `codemirror-lang-EXAMPLE`.
+1. **Aim for correct syntax**. Top priority is to guarantee valid template is parsed correctly. Tradeoffs can be made for invalid templates.
+2. **Standard tags only**. To create better yet simpler lexer, we support only tags listed in shopify/liquid and harttle/liquidjs. Other tags fallback to default tag lexer.

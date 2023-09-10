@@ -2,29 +2,34 @@ import {parser} from "./syntax.grammar"
 import {LRLanguage, LanguageSupport, indentNodeProp, foldNodeProp, foldInside, delimitedIndent} from "@codemirror/language"
 import {styleTags, tags as t} from "@lezer/highlight"
 
-export const EXAMPLELanguage = LRLanguage.define({
+export const LiquidLanguage = LRLanguage.define({
   parser: parser.configure({
     props: [
       indentNodeProp.add({
-        Application: delimitedIndent({closing: ")", align: false})
+        // TODO tag indent
+        // Application: delimitedIndent({closing: ")", align: false})
       }),
       foldNodeProp.add({
-        Application: foldInside
+        // TODO tag fold
+        // Application: foldInside
       }),
       styleTags({
         Identifier: t.variableName,
+        Literal: t.literal,
+        Quoted: t.string,
         Boolean: t.bool,
-        String: t.string,
-        LineComment: t.lineComment,
-        "( )": t.paren
+        Empty: t.bool,
+        Null: t.null,
+        Number: t.number,
+        "{%": t.paren,
+        "%}": t.paren
       })
     ]
   }),
   languageData: {
-    commentTokens: {line: ";"}
   }
 })
 
-export function EXAMPLE() {
-  return new LanguageSupport(EXAMPLELanguage)
+export function Liquid() {
+  return new LanguageSupport(LiquidLanguage)
 }
