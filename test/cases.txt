@@ -5,7 +5,7 @@
 
 ==>
 
-Program(LiquidTemplate(HTML))
+LiquidTemplate(HTML)
 
 # Ouput
 
@@ -13,9 +13,7 @@ Program(LiquidTemplate(HTML))
 
 ==>
 
-Program(
-  LiquidTemplate(Output(FilteredExpression(Expression(Identifier))))
-)
+LiquidTemplate(Output(FilteredExpression(Value(Identifier))))
 
 # Filter
 
@@ -23,17 +21,15 @@ Program(
 
 ==>
 
-Program(
-  LiquidTemplate(
-    Output(
-      FilteredExpression(
-        Expression(Identifier),
-        Filter(
-          Identifier,
-          FilterArgs(
-            FilterArg(
-              Expression(Literal(Number))
-            )
+LiquidTemplate(
+  Output(
+    FilteredExpression(
+      Value(Identifier),
+      Filter(
+        Identifier,
+        FilterArgs(
+          FilterArg(
+            Value(Literal(Number))
           )
         )
       )
@@ -48,10 +44,10 @@ Program(
 
 ==>
 
-Program(
-  LiquidTemplate(Output(FilteredExpression(Expression(Literal(Boolean)))))
-  LiquidTemplate(HTML)
-  LiquidTemplate(Output(FilteredExpression(Expression(Literal(Boolean)))))
+LiquidTemplate(
+  Output(FilteredExpression(Value(Literal(Boolean))))
+  HTML
+  Output(FilteredExpression(Value(Literal(Boolean))))
 )
 
 # Property Access
@@ -60,14 +56,12 @@ Program(
 
 ==>
 
-Program(
-  LiquidTemplate(
-    Output(
-      FilteredExpression(
-        Expression(
-          Identifier,
-          PropertyAccess(Identifier)
-        )
+LiquidTemplate(
+  Output(
+    FilteredExpression(
+      Value(
+        Identifier,
+        PropertyAccess(Identifier)
       )
     )
   )
@@ -79,13 +73,15 @@ Program(
 
 ==>
 
-Program(
-  LiquidTemplate(
-    Output(
-      FilteredExpression(
-        Expression(
-          Identifier,
-          PropertyAccess(Identifier)
+LiquidTemplate(
+  Output(
+    FilteredExpression(
+      Value(
+        Identifier,
+        PropertyAccess(
+          SquareBracketProperty(
+            Value(Literal(Quoted))
+          )
         )
       )
     )
