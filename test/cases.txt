@@ -13,7 +13,137 @@ LiquidTemplate(HTML)
 
 ==>
 
-LiquidTemplate(Output(FilteredExpression(Value(Identifier))))
+LiquidTemplate(Output(Value(Identifier)))
+
+# Multiple Ouputs
+
+{{ foo }}{{ bar }}
+
+==>
+
+LiquidTemplate(
+  Output(Value(Identifier))
+  Output(Value(Identifier))
+)
+
+# Quoted
+
+{{ "foo" }}
+{{ "foo bar" }}
+{{ "foo \" bar" }}
+
+==>
+
+LiquidTemplate(
+  Output(Value(Literal(Quoted)))
+  HTML
+  Output(Value(Literal(Quoted)))
+  HTML
+  Output(Value(Literal(Quoted)))
+)
+
+# Range
+
+{{ (1..3) }}
+
+==>
+
+LiquidTemplate(
+  Output(
+    Value(
+      Range(
+        Value(Literal(Number))
+        Value(Literal(Number))
+      )
+    )
+  )
+)
+
+# Range with Expressions
+
+{{ (foo.bar..["foo"].size) }}
+
+==>
+
+LiquidTemplate(
+  Output(
+    Value(
+      Range(
+        Value(
+          Identifier
+          PropertyAccess(Identifier)
+        )
+        Value(
+          SquareBracketProperty(Value(Literal(Quoted)))
+          PropertyAccess(Identifier)
+        )
+      )
+    )
+  )
+)
+
+# Value
+
+{{ "foo".size }}
+{{ foo.bar["zoo"].coo }}
+{{ ["zoo"].coo[0][bar] }}
+{{ foo[bar.coo["arr[".size]][0] }}
+
+==>
+
+LiquidTemplate(
+  Output(
+    Value(
+      Literal(Quoted),
+      PropertyAccess(Identifier)
+    )
+  ),
+  HTML,
+  Output(
+    Value(
+      Identifier,
+      PropertyAccess(Identifier),
+      PropertyAccess(SquareBracketProperty(Value(Literal(Quoted)))),
+      PropertyAccess(Identifier)
+    )
+  ),
+  HTML,
+  Output(
+    Value(
+      SquareBracketProperty(Value(Literal(Quoted))),
+      PropertyAccess(Identifier),
+      PropertyAccess(SquareBracketProperty(Value(Literal(Number)))),
+      PropertyAccess(SquareBracketProperty(Value(Identifier)))
+    )
+  )
+  HTML,
+  Output(
+    Value(
+      Identifier,
+      PropertyAccess(
+        SquareBracketProperty(
+          Value(
+            Identifier
+            PropertyAccess(Identifier),
+            PropertyAccess(
+              SquareBracketProperty(
+                Value(
+                  Literal(Quoted)
+                  PropertyAccess(Identifier)
+                )
+              )
+            )
+          )
+        )
+      )
+      PropertyAccess(
+        SquareBracketProperty(
+          Value(Literal(Number))
+        )
+      )
+    )
+  )
+)
 
 # Filter
 
@@ -23,13 +153,60 @@ LiquidTemplate(Output(FilteredExpression(Value(Identifier))))
 
 LiquidTemplate(
   Output(
-    FilteredExpression(
-      Value(Identifier),
-      Filter(
-        Identifier,
-        FilterArgs(
-          FilterArg(
-            Value(Literal(Number))
+    Value(Identifier),
+    Filter(
+      Identifier,
+      FilterArgs(
+        FilterArg(
+          Value(Literal(Number))
+        )
+      )
+    )
+  )
+)
+
+# Multiple Filters
+
+{{ person | title: "Sr." | prepend: "Sir" }}
+
+==>
+
+LiquidTemplate(
+  Output(
+    Value(Identifier),
+    Filter(
+      Identifier,
+      FilterArgs(FilterArg(Value(Literal(Quoted))))
+    ),
+    Filter(
+      Identifier,
+      FilterArgs(FilterArg(Value(Literal(Quoted))))
+    )
+  )
+)
+
+# Multiple Argument Filter
+
+{{ person | card: "Sr.", age:18, report: mgrs[0].name }}
+
+==>
+
+LiquidTemplate(
+  Output(
+    Value(Identifier),
+    Filter(
+      Identifier,
+      FilterArgs(
+        FilterArg(Value(Literal(Quoted))),
+        FilterArg(KeyValuePair(Identifier,Value(Literal(Number)))),
+        FilterArg(
+          KeyValuePair(
+            Identifier,
+            Value(
+              Identifier,
+              PropertyAccess(SquareBracketProperty(Value(Literal(Number)))),
+              PropertyAccess(Identifier)
+            )
           )
         )
       )
@@ -45,9 +222,9 @@ LiquidTemplate(
 ==>
 
 LiquidTemplate(
-  Output(FilteredExpression(Value(Literal(Boolean))))
+  Output(Value(Literal(Boolean)))
   HTML
-  Output(FilteredExpression(Value(Literal(Boolean))))
+  Output(Value(Literal(Boolean)))
 )
 
 # Property Access
@@ -58,11 +235,9 @@ LiquidTemplate(
 
 LiquidTemplate(
   Output(
-    FilteredExpression(
-      Value(
-        Identifier,
-        PropertyAccess(Identifier)
-      )
+    Value(
+      Identifier,
+      PropertyAccess(Identifier)
     )
   )
 )
@@ -75,15 +250,51 @@ LiquidTemplate(
 
 LiquidTemplate(
   Output(
-    FilteredExpression(
-      Value(
-        Identifier,
-        PropertyAccess(
-          SquareBracketProperty(
-            Value(Literal(Quoted))
-          )
+    Value(
+      Identifier,
+      PropertyAccess(
+        SquareBracketProperty(
+          Value(Literal(Quoted))
         )
       )
     )
+  )
+)
+
+# Tag
+
+{% foo %}
+{% endfoo %}
+
+==>
+
+LiquidTemplate(
+  Tag(
+    TagName(Identifier)
+  )
+  HTML
+  Tag(
+    TagName(Identifier)
+  )
+)
+
+# Tag with Arguments
+
+{% foo reverse col : 3 row:rows[0] %}
+
+==>
+
+LiquidTemplate(
+  Tag(
+    TagName(Identifier)
+    TagArg(Identifier),
+    TagArg(KeyValuePair(Identifier,Value(Literal(Number)))),
+    TagArg(KeyValuePair(
+      Identifier,
+      Value(
+        Identifier,
+        PropertyAccess(SquareBracketProperty(Value(Literal(Number))))
+      )
+    ))
   )
 )

@@ -1,16 +1,14 @@
 @top LiquidTemplate { (Output | Tag | HTML)* }
 @precedence { Output, Tag, HTML }
 
-Output { beginOutput dash? space? FilteredExpression ~value space? dash? endOutput }
+Output { beginOutput dash? space? Value (~value space? Filter)* ~value space? dash? endOutput }
 Tag { beginTag dash? space? TagName (space TagArg ~id)* space? dash? endTag }
 
 TagArg { Identifier | KeyValuePair | any }
 
 TagName { Identifier }
 
-FilteredExpression { Value (~value space? Filter)* }
-
-Value { (Identifier | SquareBracketProperty | Literal) ~id PropertyAccess* }
+Value { (Identifier | SquareBracketProperty | Literal | Range) ~id PropertyAccess* }
 
 Filter { "|" space? Identifier space? ":" space? FilterArgs ~filterarg }
 
@@ -24,9 +22,9 @@ SquareBracketProperty { "[" Value "]" }
 
 PropertyAccess { "." Identifier | SquareBracketProperty }
 
-Literal { Quoted | Range | Number | Boolean | DropLiteral | Null }
+Literal { Quoted | Number | Boolean | DropLiteral | Null }
 
-Range { "(" space? Value space? "," space? Value space? ")"}
+Range { "(" space? Value space? ".." space? Value space? ")"}
 
 @tokens {
     beginTag { "{%" }
@@ -36,7 +34,7 @@ Range { "(" space? Value space? "," space? Value space? ")"}
 
     Identifier { @asciiLetter (@asciiLetter | @digit | "_")* }
     Number { @digit+ ("." @digit+)? }
-    Quoted { '"' (!["] | '\"')* '"' }
+    Quoted { '"' (!["] | '\\"')* '"' }
     Boolean { "true" | "false" }
     Null { "nil" | "null" }
     DropLiteral { "empty" | "blank" | "forloop" }
