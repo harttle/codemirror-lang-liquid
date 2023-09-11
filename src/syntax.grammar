@@ -1,8 +1,8 @@
 @top LiquidTemplate { (Output | Tag | HTML)* }
 @precedence { Output, Tag, HTML }
 
-Output { beginOutput dash? space? Value (~value space? Filter)* ~value space? dash? endOutput }
-Tag { beginTag dash? space? TagName (space TagArg ~id)* space? dash? endTag }
+Output { beginOutput Dash? space? Value (~value space? Filter)* ~value space? Dash? endOutput }
+Tag { beginTag Dash? space? TagName (space TagArg ~id)* space? Dash? endTag }
 
 TagArg { Identifier | KeyValuePair | any }
 
@@ -10,7 +10,9 @@ TagName { Identifier }
 
 Value { (Identifier | SquareBracketProperty | Literal | Range) ~id PropertyAccess* }
 
-Filter { "|" space? Identifier space? ":" space? FilterArgs ~filterarg }
+Filter { "|" space? FilterName space? ":" space? FilterArgs ~filterarg }
+
+FilterName { Identifier }
 
 FilterArgs { FilterArg (~filterarg space? "," space? FilterArg)* }
 
@@ -39,12 +41,12 @@ Range { "(" space? Value space? ".." space? Value space? ")"}
     Null { "nil" | "null" }
     DropLiteral { "empty" | "blank" | "forloop" }
     HTML { (![{] | "{" ![{%])+ }
+    Dash { "-" }
 
     space { @whitespace+ }
-    dash { dash }
     any { ![]+ }
 
-    @precedence { beginTag, beginOutput, DropLiteral, Boolean, Null, Quoted, Number, Identifier, dash, endTag, endOutput, any }
+    @precedence { beginTag, beginOutput, DropLiteral, Boolean, Null, Quoted, Number, Identifier, Dash, endTag, endOutput, any }
 }
 
 @detectDelim

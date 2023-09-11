@@ -14,7 +14,8 @@ export const LiquidLanguage = LRLanguage.define({
         // Application: foldInside
       }),
       styleTags({
-        Identifier: t.variableName,
+        "TagName/...": t.tagName,
+        "FilterName/...": t.tagName,
         Literal: t.literal,
         Quoted: t.string,
         Boolean: t.bool,

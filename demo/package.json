@@ -1,0 +1,14 @@
+{
+  "name": "codemirror-lang-liquid-demo",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "build": "rollup editor.mjs -f iife -o editor.bundle.js -p @rollup/plugin-node-resolve",
+    "start": "http-server -c-1"
+  },
+  "description": "",
+  "dependencies": {
+    "harttle/codemirror-lang-liquid": "../dist"
+  }
+}

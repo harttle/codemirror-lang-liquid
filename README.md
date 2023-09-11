@@ -2,11 +2,34 @@
 
 This is Liquid language package for CodeMirror 6.
 
+## Get Started
+
 ## Features
 
-- 
+- Liquid Syntax: tag, output, filter, expressions, literals
 
-## Principles
+## Dev
 
-1. **Aim for correct syntax**. Top priority is to guarantee valid template is parsed correctly. Tradeoffs can be made for invalid templates.
-2. **Standard tags only**. To create better yet simpler lexer, we support only tags listed in shopify/liquid and harttle/liquidjs. Other tags fallback to default tag lexer.
+Build
+
+```bash
+npm run build
+```
+
+Test
+
+```bash
+npm test
+```
+
+Build demo page. You'll need to build `codemirror-lang-liquid` first.
+
+```bash
+npm run build:demo
+```
+
+Start demo Web server
+
+```bash
+npm run start:demo
+```

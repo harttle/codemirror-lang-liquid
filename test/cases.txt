@@ -155,7 +155,7 @@ LiquidTemplate(
   Output(
     Value(Identifier),
     Filter(
-      Identifier,
+      FilterName(Identifier),
       FilterArgs(
         FilterArg(
           Value(Literal(Number))
@@ -175,11 +175,11 @@ LiquidTemplate(
   Output(
     Value(Identifier),
     Filter(
-      Identifier,
+      FilterName(Identifier),
       FilterArgs(FilterArg(Value(Literal(Quoted))))
     ),
     Filter(
-      Identifier,
+      FilterName(Identifier),
       FilterArgs(FilterArg(Value(Literal(Quoted))))
     )
   )
@@ -195,7 +195,7 @@ LiquidTemplate(
   Output(
     Value(Identifier),
     Filter(
-      Identifier,
+      FilterName(Identifier),
       FilterArgs(
         FilterArg(Value(Literal(Quoted))),
         FilterArg(KeyValuePair(Identifier,Value(Literal(Number)))),
@@ -297,4 +297,17 @@ LiquidTemplate(
       )
     ))
   )
+)
+
+# Space Control
+
+{%- foo -%}
+{{ bar -}}
+
+==>
+
+LiquidTemplate(
+  Tag(Dash,TagName(Identifier),Dash),
+  HTML,
+  Output(Value(Identifier),Dash)
 )
