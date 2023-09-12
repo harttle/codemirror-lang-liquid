@@ -13,7 +13,7 @@ LiquidTemplate(HTML)
 
 ==>
 
-LiquidTemplate(Output(Value(Identifier)))
+LiquidTemplate(Output(BeginOutput,Value(Identifier),EndOutput))
 
 # Multiple Ouputs
 
@@ -22,8 +22,8 @@ LiquidTemplate(Output(Value(Identifier)))
 ==>
 
 LiquidTemplate(
-  Output(Value(Identifier))
-  Output(Value(Identifier))
+  Output(BeginOutput,Value(Identifier),EndOutput)
+  Output(BeginOutput,Value(Identifier),EndOutput)
 )
 
 # Quoted
@@ -35,11 +35,11 @@ LiquidTemplate(
 ==>
 
 LiquidTemplate(
-  Output(Value(Literal(Quoted)))
+  Output(BeginOutput,Value(Literal(Quoted)),EndOutput)
   HTML
-  Output(Value(Literal(Quoted)))
+  Output(BeginOutput,Value(Literal(Quoted)),EndOutput)
   HTML
-  Output(Value(Literal(Quoted)))
+  Output(BeginOutput,Value(Literal(Quoted)),EndOutput)
 )
 
 # Range
@@ -50,12 +50,15 @@ LiquidTemplate(
 
 LiquidTemplate(
   Output(
+    BeginOutput
     Value(
       Range(
         Value(Literal(Number))
+        ".."
         Value(Literal(Number))
       )
     )
+    EndOutput
   )
 )
 
@@ -67,6 +70,7 @@ LiquidTemplate(
 
 LiquidTemplate(
   Output(
+    BeginOutput
     Value(
       Range(
         Value(
@@ -79,6 +83,7 @@ LiquidTemplate(
         )
       )
     )
+    EndOutput
   )
 )
 
@@ -93,31 +98,38 @@ LiquidTemplate(
 
 LiquidTemplate(
   Output(
+    BeginOutput
     Value(
       Literal(Quoted),
       PropertyAccess(Identifier)
     )
+    EndOutput
   ),
   HTML,
   Output(
+    BeginOutput
     Value(
       Identifier,
-      PropertyAccess(Identifier),
-      PropertyAccess(SquareBracketProperty(Value(Literal(Quoted)))),
+      PropertyAccess("." Identifier),
+      PropertyAccess(SquareBracketProperty("[" Value(Literal(Quoted)) "]")),
       PropertyAccess(Identifier)
     )
+    EndOutput
   ),
   HTML,
   Output(
+    BeginOutput
     Value(
       SquareBracketProperty(Value(Literal(Quoted))),
       PropertyAccess(Identifier),
       PropertyAccess(SquareBracketProperty(Value(Literal(Number)))),
       PropertyAccess(SquareBracketProperty(Value(Identifier)))
     )
+    EndOutput
   )
   HTML,
   Output(
+    BeginOutput
     Value(
       Identifier,
       PropertyAccess(
@@ -142,6 +154,7 @@ LiquidTemplate(
         )
       )
     )
+    EndOutput
   )
 )
 
@@ -153,6 +166,7 @@ LiquidTemplate(
 
 LiquidTemplate(
   Output(
+    BeginOutput
     Value(Identifier),
     Filter(
       FilterName(Identifier),
@@ -162,6 +176,7 @@ LiquidTemplate(
         )
       )
     )
+    EndOutput
   )
 )
 
@@ -173,6 +188,7 @@ LiquidTemplate(
 
 LiquidTemplate(
   Output(
+    BeginOutput
     Value(Identifier),
     Filter(
       FilterName(Identifier),
@@ -181,7 +197,8 @@ LiquidTemplate(
     Filter(
       FilterName(Identifier),
       FilterArgs(FilterArg(Value(Literal(Quoted))))
-    )
+    ),
+    EndOutput
   )
 )
 
@@ -193,6 +210,7 @@ LiquidTemplate(
 
 LiquidTemplate(
   Output(
+    BeginOutput
     Value(Identifier),
     Filter(
       FilterName(Identifier),
@@ -211,6 +229,7 @@ LiquidTemplate(
         )
       )
     )
+    EndOutput
   )
 )
 
@@ -222,9 +241,9 @@ LiquidTemplate(
 ==>
 
 LiquidTemplate(
-  Output(Value(Literal(Boolean)))
+  Output(BeginOutput,Value(Literal(Boolean)),EndOutput)
   HTML
-  Output(Value(Literal(Boolean)))
+  Output(BeginOutput,Value(Literal(Boolean)),EndOutput)
 )
 
 # Property Access
@@ -235,10 +254,12 @@ LiquidTemplate(
 
 LiquidTemplate(
   Output(
+    BeginOutput,
     Value(
       Identifier,
       PropertyAccess(Identifier)
     )
+    EndOutput
   )
 )
 
@@ -250,6 +271,7 @@ LiquidTemplate(
 
 LiquidTemplate(
   Output(
+    BeginOutput
     Value(
       Identifier,
       PropertyAccess(
@@ -258,6 +280,7 @@ LiquidTemplate(
         )
       )
     )
+    EndOutput
   )
 )
 
@@ -270,11 +293,15 @@ LiquidTemplate(
 
 LiquidTemplate(
   Tag(
+    BeginTag
     TagName(Identifier)
+    EndTag
   )
   HTML
   Tag(
+    BeginTag
     TagName(Identifier)
+    EndTag
   )
 )
 
@@ -286,16 +313,114 @@ LiquidTemplate(
 
 LiquidTemplate(
   Tag(
+    BeginTag
     TagName(Identifier)
-    TagArg(Identifier),
-    TagArg(KeyValuePair(Identifier,Value(Literal(Number)))),
-    TagArg(KeyValuePair(
-      Identifier,
-      Value(
-        Identifier,
-        PropertyAccess(SquareBracketProperty(Value(Literal(Number))))
+    UnkownTagArg
+    EndTag
+  )
+)
+
+# UnkownTagArg
+
+{% foo people = - %}
+
+==>
+
+LiquidTemplate(
+  Tag(
+    BeginTag
+    TagName(Identifier),
+    UnkownTagArg
+    EndTag
+  )
+)
+
+# ForTag
+
+{% for i in obj reversed limit : 3 offset:rows[0] %}
+
+==>
+
+LiquidTemplate(
+  ForTag(
+    BeginTag
+    TagName
+    Identifier
+    in
+    Value(Identifier),
+    reversed
+    limit ":" Value(Literal(Number))
+    offset ":" Value(Identifier, PropertyAccess(SquareBracketProperty(Value(Literal(Number)))))
+    EndTag
+  )
+)
+
+# AssignTag
+
+{% assign people = "alice, bob, carol" -%}
+
+==>
+
+LiquidTemplate(
+  AssignTag(
+    BeginTag
+    TagName
+    Identifier,
+    "=",
+    Value(Literal(Quoted))
+    EndTag
+  )
+)
+# AssignTag with Filter
+
+{% assign people = "alic,bob" | split: "," %}
+
+==>
+
+LiquidTemplate(
+  AssignTag(
+    BeginTag
+    TagName
+    Identifier,
+    "=",
+    Value(Literal(Quoted))
+    Filter(
+      FilterName(Identifier)
+      FilterArgs(
+        FilterArg(Value(Literal(Quoted)))
       )
-    ))
+    )
+    EndTag
+  )
+)
+
+# EchoTag
+
+{% echo "I am  and my favorite food is nnn." %}
+
+==>
+
+LiquidTemplate(
+  EchoTag(BeginTag, TagName, Value(Literal(Quoted)), EndTag)
+)
+
+# LiquidTag
+
+{% liquid
+  assign favorite_food2 = "pizza"
+  foo age2 = 35
+  echo "foo"
+%}
+
+==>
+
+LiquidTemplate(
+  LiquidTag(
+    BeginTag TagName
+    TagName Identifier "=" Value(Literal(Quoted))
+    TagName(Identifier) UnkownTagArg
+    TagName Value(Literal(Quoted))
+    EndTag
   )
 )
 
@@ -307,7 +432,7 @@ LiquidTemplate(
 ==>
 
 LiquidTemplate(
-  Tag(Dash,TagName(Identifier),Dash),
+  Tag(BeginTag, TagName(Identifier), EndTag),
   HTML,
-  Output(Value(Identifier),Dash)
+  Output(BeginOutput, Value(Identifier), EndOutput)
 )

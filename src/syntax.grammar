@@ -1,52 +1,73 @@
-@top LiquidTemplate { (Output | Tag | HTML)* }
-@precedence { Output, Tag, HTML }
+@top LiquidTemplate { (Output | tags | HTML)* }
+@precedence { echoTagContent, unkownTagContent }
 
-Output { beginOutput Dash? space? Value (~value space? Filter)* ~value space? Dash? endOutput }
-Tag { beginTag Dash? space? TagName (space TagArg ~id)* space? Dash? endTag }
+@skip { space } {
+    tags { AssignTag | EchoTag | ForTag | LiquidTag | UnkownTag }
+    AssignTag { tag<assignTagContent> }
+    EchoTag { tag<echoTagContent> }
+    ForTag { tag<forTagContent> }
+    LiquidTag { tag<liquidTagContent> }
+    UnkownTag[@name="Tag"] { tag<unkownTagContent> }
 
-TagArg { Identifier | KeyValuePair | any }
+    tagContents { assignTagContent | echoTagContent | forTagContent | unkownTagContent }
+    assignTagContent { tagName<"assign"> Identifier "=" filteredValue }
+    echoTagContent { tagName<"echo"> filteredValue }
+    forTagContent { tagName<"for"> Identifier keyword<"in"> Value (blk<"reversed"> | kv<"offset"> | kv<"limit">)* }
+    liquidTagContent { tagName<"liquid"> (linebreak+ tagContents)* linebreak* }
+    unkownTagContent { unknownTagName (UnkownTagArg)* }
 
-TagName { Identifier }
+    Value { (Identifier | SquareBracketProperty | Literal | Range) PropertyAccess* }
+    KeyValuePair { Identifier ":" Value }
+    kv<T> { blk<T> ":" Value }
+    filteredValue { Value (Filter)* }
+    Output { BeginOutput filteredValue EndOutput }
 
-Value { (Identifier | SquareBracketProperty | Literal | Range) ~id PropertyAccess* }
+    Filter { "|" FilterName ":" FilterArgs }
+    FilterName { Identifier }
+    FilterArgs { FilterArg ("," FilterArg)* }
+    FilterArg { Value | KeyValuePair }
 
-Filter { "|" space? FilterName space? ":" space? FilterArgs ~filterarg }
+    Literal { Quoted | Number | Boolean | DropLiteral | Null }
+    SquareBracketProperty { "[" Value "]" }
+    PropertyAccess { "." Identifier | SquareBracketProperty }
+    Range { "(" Value ".." Value ")"}
 
-FilterName { Identifier }
+    tag<T> { BeginTag T EndTag }
+    tagName<T> { @extend[@name="TagName"]<kownTagNames, T> }
+}
 
-FilterArgs { FilterArg (~filterarg space? "," space? FilterArg)* }
 
-FilterArg { Value | KeyValuePair }
-
-KeyValuePair { Identifier ~id space? ":" space? Value ~value }
-
-SquareBracketProperty { "[" Value "]" }
-
-PropertyAccess { "." Identifier | SquareBracketProperty }
-
-Literal { Quoted | Number | Boolean | DropLiteral | Null }
-
-Range { "(" space? Value space? ".." space? Value space? ")"}
+blk<type> { @specialize[@name={type}]<Identifier, type> }
+keyword[@name={type}]<type> { @specialize<Identifier, type> }
+Boolean { @specialize<Identifier, "true" | "false"> }
+Null { @specialize<Identifier, "nil" | "null"> }
+DropLiteral { @specialize<Identifier, "empty" | "blank" | "forloop"> }
+unknownTagName[@name="TagName"] { Identifier }
 
 @tokens {
-    beginTag { "{%" }
-    beginOutput { "{{" }
-    endTag { "%}" }
-    endOutput { "}}" }
+    BeginTag[closedBy="EndTag"] { "{%" | "{%-" }
+    EndTag[openedBy="BeginTag"] { "%}" | "-%}" }
+    BeginOutput[closedBy="EndOutput"] { "{{" | "{{-" }
+    EndOutput[openedBy="BeginOutput"] { "}}" | "-}}" }
 
     Identifier { @asciiLetter (@asciiLetter | @digit | "_")* }
     Number { @digit+ ("." @digit+)? }
-    Quoted { '"' (!["] | '\\"')* '"' }
-    Boolean { "true" | "false" }
-    Null { "nil" | "null" }
-    DropLiteral { "empty" | "blank" | "forloop" }
+    Quoted { "\"" (!["] | '\\"')* "\"" | "'" (!['] | "\\'")* "'"}
     HTML { (![{] | "{" ![{%])+ }
-    Dash { "-" }
+	kownTagNames { "for" | "assign" | "echo" | "assign" | "liquid" }
+    UnkownTagArg { (![%\r\n] | "%" ![}\r\n] | "%" @eof )+ }
 
-    space { @whitespace+ }
-    any { ![]+ }
+    "["
+    "]"
+    "."
+    ":"
+    "="
+    ".."
+    linebreak { "\r"? "\n" }
+    space { (" " | "\t")+ }
 
-    @precedence { beginTag, beginOutput, DropLiteral, Boolean, Null, Quoted, Number, Identifier, Dash, endTag, endOutput, any }
+	@precedence { kownTagNames, Identifier }
+    @precedence { BeginTag, BeginOutput, EndTag, EndOutput, Quoted, Number, Identifier, space, "..", "=", ":", ".", "[", "]", UnkownTagArg }
 }
 
 @detectDelim

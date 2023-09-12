@@ -2,12 +2,12 @@ import {EditorView, basicSetup} from "codemirror"
 import {Liquid} from "../dist"
 
 const doc = `{% assign people = "alice, bob, carol" | split: ", " -%}
-{{ foo | size: 3 }}
+<h1>{{ people | join: empty }}
 <ul>
-{%- for person in people %}
+{%- for i in (0..2) reversed limit:people.size offset:1 %}
   <li>
-    <a href="{{person | prepend: "http://example.com/"}}">
-      {{ person | capitalize }}
+    <a href="{{people[i] | prepend: "http://example.com/"}}">
+      {{ people[i] | capitalize }}
    </a>
   </li>
 {%- endfor%}

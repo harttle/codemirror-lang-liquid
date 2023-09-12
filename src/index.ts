@@ -17,13 +17,17 @@ export const LiquidLanguage = LRLanguage.define({
         "TagName/...": t.tagName,
         "FilterName/...": t.tagName,
         Literal: t.literal,
+        Identifier: t.name,
+        "in": t.operatorKeyword,
+        "reversed limit offset": t.keyword,
         Quoted: t.string,
         Boolean: t.bool,
-        Empty: t.bool,
+        DropLiteral: t.bool,
         Null: t.null,
         Number: t.number,
-        "{%": t.paren,
-        "%}": t.paren
+        "[ ]": t.squareBracket,
+        "| , :": t.punctuation,
+        "..": t.operator
       })
     ]
   }),

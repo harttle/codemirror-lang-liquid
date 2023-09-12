@@ -6,7 +6,8 @@ This is Liquid language package for CodeMirror 6.
 
 ## Features
 
-- Liquid Syntax: tag, output, filter, expressions, literals
+- Syntax highlighting: tag, output, filter, expressions, literals (strings, boolean, etc.)
+- Open/Close matching: `{%` matches `%}`, `{{` matches `}}`, etc.
 
 ## Dev
 
@@ -33,3 +34,9 @@ Start demo Web server
 ```bash
 npm run start:demo
 ```
+
+## TODO
+
+Literal -> literal
+"{%" auto complete with "%}"
+remove Identifier in TagName(Identifier)
