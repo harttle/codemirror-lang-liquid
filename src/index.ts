@@ -19,7 +19,7 @@ export const LiquidLanguage = LRLanguage.define({
         Literal: t.literal,
         Identifier: t.name,
         "in": t.operatorKeyword,
-        "reversed limit offset": t.keyword,
+        "reversed limit offset": t.propertyName,
         Quoted: t.string,
         Boolean: t.bool,
         DropLiteral: t.bool,

@@ -1,5 +1,4 @@
 @top LiquidTemplate { (Output | tags | HTML)* }
-@precedence { echoTagContent, unkownTagContent }
 
 @skip { space } {
     tags { AssignTag | EchoTag | ForTag | LiquidTag | UnkownTag }
@@ -10,10 +9,10 @@
     UnkownTag[@name="Tag"] { tag<unkownTagContent> }
 
     tagContents { assignTagContent | echoTagContent | forTagContent | unkownTagContent }
-    assignTagContent { tagName<"assign"> Variable "=" filteredValue }
-    echoTagContent { tagName<"echo"> filteredValue }
-    forTagContent { tagName<"for"> Variable kw<"in"> value (blk<"reversed"> | kv<"offset"> | kv<"limit">)* }
-    liquidTagContent { tagName<"liquid"> (linebreak+ tagContents)* linebreak* }
+    assignTagContent { assign Variable "=" filteredValue }
+    echoTagContent { echo filteredValue }
+    forTagContent { for Variable kw<"in"> value (blk<"reversed"> | kv<"offset"> | kv<"limit">)* }
+    liquidTagContent { liquid (linebreak+ tagContents)* linebreak* }
     unkownTagContent { unknownTagName (UnkownTagArg)* }
 
     value { Variable | MemberExpression | literal | Range }
@@ -34,7 +33,6 @@
     FilterArg { value | KeyValuePair }
 
     tag<T> { BeginTag T EndTag }
-    tagName<T> { @extend[@name="TagName"]<kownTagNames, T> }
 }
 
 
@@ -43,6 +41,11 @@ kw[@name={type}]<type> { @specialize<identifier, type> }
 Boolean { @specialize<identifier, "true" | "false"> }
 Null { @specialize<identifier, "nil" | "null"> }
 DropLiteral { @specialize<identifier, "empty" | "blank" | "forloop"> }
+
+assign[@name="TagName"] { @specialize<identifier, "assign"> }
+for[@name="TagName"] { @specialize<identifier, "for"> }
+liquid[@name="TagName"] { @specialize<identifier, "liquid"> }
+echo[@name="TagName"] { @specialize<identifier, "echo"> }
 unknownTagName[@name="TagName"] { identifier }
 
 @tokens {
@@ -55,7 +58,6 @@ unknownTagName[@name="TagName"] { identifier }
     Number { @digit+ ("." @digit+)? }
     Quoted { "\"" (!["] | '\\"')* "\"" | "'" (!['] | "\\'")* "'"}
     HTML { (![{] | "{" ![{%])+ }
-	kownTagNames { "for" | "assign" | "echo" | "assign" | "liquid" }
     UnkownTagArg { (![%\r\n] | "%" ![}\r\n] | "%" @eof )+ }
 
     "["
@@ -67,7 +69,6 @@ unknownTagName[@name="TagName"] { identifier }
     linebreak { "\r"? "\n" }
     space { (" " | "\t")+ }
 
-	@precedence { kownTagNames, identifier }
     @precedence { BeginTag, BeginOutput, EndTag, EndOutput, Quoted, Number, identifier, space, "..", "=", ":", ".", "[", "]", UnkownTagArg }
 }
 
