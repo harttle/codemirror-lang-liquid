@@ -37,6 +37,6 @@ npm run start:demo
 
 ## TODO
 
-Literal -> literal
 "{%" auto complete with "%}"
-remove Identifier in TagName(Identifier)
+distinguish in and reverse
+raw

@@ -10,39 +10,40 @@
     UnkownTag[@name="Tag"] { tag<unkownTagContent> }
 
     tagContents { assignTagContent | echoTagContent | forTagContent | unkownTagContent }
-    assignTagContent { tagName<"assign"> Identifier "=" filteredValue }
+    assignTagContent { tagName<"assign"> Variable "=" filteredValue }
     echoTagContent { tagName<"echo"> filteredValue }
-    forTagContent { tagName<"for"> Identifier keyword<"in"> Value (blk<"reversed"> | kv<"offset"> | kv<"limit">)* }
+    forTagContent { tagName<"for"> Variable kw<"in"> value (blk<"reversed"> | kv<"offset"> | kv<"limit">)* }
     liquidTagContent { tagName<"liquid"> (linebreak+ tagContents)* linebreak* }
     unkownTagContent { unknownTagName (UnkownTagArg)* }
 
-    Value { (Identifier | SquareBracketProperty | literal | Range) PropertyAccess* }
-    KeyValuePair { Identifier ":" Value }
-    kv<T> { blk<T> ":" Value }
-    filteredValue { Value (Filter)* }
+    value { Variable | MemberExpression | literal | Range }
+    literal { Quoted | Number | Boolean | DropLiteral | Null }
+	Variable { identifier }
+	PropertyName { identifier }
+	MemberExpression { value ("." PropertyName | "[" value "]") | "[" value "]"}
+    Range { "(" value ".." value ")"}
+
+    KeyValuePair { Variable ":" value }
+    kv<T> { blk<T> ":" value }
+    filteredValue { value (Filter)* }
     Output { BeginOutput filteredValue EndOutput }
 
     Filter { "|" FilterName ":" FilterArgs }
-    FilterName { Identifier }
+    FilterName { identifier }
     FilterArgs { FilterArg ("," FilterArg)* }
-    FilterArg { Value | KeyValuePair }
-
-    literal { Quoted | Number | Boolean | DropLiteral | Null }
-    SquareBracketProperty { "[" Value "]" }
-    PropertyAccess { "." Identifier | SquareBracketProperty }
-    Range { "(" Value ".." Value ")"}
+    FilterArg { value | KeyValuePair }
 
     tag<T> { BeginTag T EndTag }
     tagName<T> { @extend[@name="TagName"]<kownTagNames, T> }
 }
 
 
-blk<type> { @specialize[@name={type}]<Identifier, type> }
-keyword[@name={type}]<type> { @specialize<Identifier, type> }
-Boolean { @specialize<Identifier, "true" | "false"> }
-Null { @specialize<Identifier, "nil" | "null"> }
-DropLiteral { @specialize<Identifier, "empty" | "blank" | "forloop"> }
-unknownTagName[@name="TagName"] { Identifier }
+blk<type> { @specialize[@name={type}]<identifier, type> }
+kw[@name={type}]<type> { @specialize<identifier, type> }
+Boolean { @specialize<identifier, "true" | "false"> }
+Null { @specialize<identifier, "nil" | "null"> }
+DropLiteral { @specialize<identifier, "empty" | "blank" | "forloop"> }
+unknownTagName[@name="TagName"] { identifier }
 
 @tokens {
     BeginTag[closedBy="EndTag"] { "{%" | "{%-" }
@@ -50,7 +51,7 @@ unknownTagName[@name="TagName"] { Identifier }
     BeginOutput[closedBy="EndOutput"] { "{{" | "{{-" }
     EndOutput[openedBy="BeginOutput"] { "}}" | "-}}" }
 
-    Identifier { @asciiLetter (@asciiLetter | @digit | "_")* }
+    identifier { @asciiLetter (@asciiLetter | @digit | "_")* }
     Number { @digit+ ("." @digit+)? }
     Quoted { "\"" (!["] | '\\"')* "\"" | "'" (!['] | "\\'")* "'"}
     HTML { (![{] | "{" ![{%])+ }
@@ -66,8 +67,8 @@ unknownTagName[@name="TagName"] { Identifier }
     linebreak { "\r"? "\n" }
     space { (" " | "\t")+ }
 
-	@precedence { kownTagNames, Identifier }
-    @precedence { BeginTag, BeginOutput, EndTag, EndOutput, Quoted, Number, Identifier, space, "..", "=", ":", ".", "[", "]", UnkownTagArg }
+	@precedence { kownTagNames, identifier }
+    @precedence { BeginTag, BeginOutput, EndTag, EndOutput, Quoted, Number, identifier, space, "..", "=", ":", ".", "[", "]", UnkownTagArg }
 }
 
 @detectDelim
