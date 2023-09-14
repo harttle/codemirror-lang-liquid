@@ -1,39 +1,53 @@
-@top LiquidTemplate { (Output | tags | HTML)* }
+@top LiquidTemplate { (Output | outerTag | HTML)* }
 
 @skip { space } {
-    tags { AssignTag | EchoTag | ForTag | LiquidTag | UnkownTag }
-    AssignTag { tag<assignTagContent> }
-    EchoTag { tag<echoTagContent> }
-    ForTag { tag<forTagContent> }
-    LiquidTag { tag<liquidTagContent> }
-    UnkownTag[@name="Tag"] { tag<unkownTagContent> }
-
-    tagContents { assignTagContent | echoTagContent | forTagContent | unkownTagContent }
-    assignTagContent { assign VariableDefinition "=" filteredValue }
-    echoTagContent { echo filteredValue }
-    forTagContent { for VariableDefinition kw<"in"> value (arg<"reversed"> | kv<"offset"> | kv<"limit">)* }
-    liquidTagContent { liquid (linebreak+ tagContents)* linebreak* }
-    unkownTagContent { unknownTagName (UnkownTagArg)* }
+    outerTag[@name="Tag"] { tag<innerTag> | tag<LiquidTag> }
+    innerTag {
+        AssignTag { tagName<"assign"> VariableDefinition "=" filteredValue } |
+        BlockTag { tagName<"block"> Label } |
+        BreakTag { tagName<"break"> } |
+        CaptureTag { tagName<"capture"> VariableDefinition } |
+        CaseTag { tagName<"case"> value } |
+        ContinueTag { tagName<"continue"> } |
+        CycleTag { tagName<"cycle"> (Label ":")? value ("," value)* } |
+        DecrementTag { tagName<"decrement"> (VariableName | MemberExpression) } |
+        EchoTag { tagName<"echo"> filteredValue } |
+        ForTag { tagName<"for"> VariableDefinition kw<"in"> value (arg<"reversed"> | kv<"offset"> | kv<"limit"> | ArgumentName | KeyValuePair)* } |
+        IfTag { tagName<"if"> value } |
+        Include { tagName<"include"> value ("with" ":" value)? ("," KeyValuePair)* } |
+        IncrementTag { tagName<"increment"> (VariableName | MemberExpression) } |
+        InlineCommentTag { tagName<"#"> UnknownTagArg? } |
+        Layout { tagName<"layout"> value ("with" ":" value)? ("," KeyValuePair)* } |
+        Render { tagName<"render"> value ("with" ":" value)? ("," KeyValuePair)* } |
+        TableRowTag { tagName<"tablerow"> VariableDefinition kw<"in"> value (kv<"cols"> | kv<"offset"> | kv<"limit"> | ArgumentName | KeyValuePair)* } |
+        UnlessTag { tagName<"unless"> value } |
+        UnknownTag { unknownTagName (UnknownTagArg)* }
+    }
+    LiquidTag { tagName<"liquid"> (linebreak+ innerTag)* linebreak* }
 
     value { VariableName | MemberExpression | literal | Range }
     literal { Quoted | Number | Boolean | DropLiteral | Null }
 	VariableName { identifier }
 	VariableDefinition { identifier }
+    Label { identifier }
 	PropertyName { identifier }
 	MemberExpression { value ("." PropertyName | "[" value "]") | "[" value "]"}
     Range { "(" value ".." value ")"}
 
-    KeyValuePair { VariableDefinition ":" value }
+    ArgumentName { identifier }
+    KeyValuePair { ArgumentName ":" value }
     kv<T> { arg<T> ":" value }
     filteredValue { value (Filter)* }
-    Output { BeginOutput filteredValue EndOutput }
+    Output { OutputStart filteredValue OutputEnd }
 
     Filter { "|" FilterName ":" FilterArgs }
     FilterName { identifier }
     FilterArgs { FilterArg ("," FilterArg)* }
     FilterArg { value | KeyValuePair }
 
-    tag<T> { BeginTag T EndTag }
+    tag<T> { TagStart T TagEnd }
+    tagName[@name="TagName"]<T> { @specialize<identifier, T> }
+    unknownTagName[@name="TagName"] { identifier }
 }
 
 arg[@name="ArgumentName"]<type> { @specialize[@name={type}]<identifier, type> }
@@ -42,23 +56,17 @@ Boolean { @specialize<identifier, "true" | "false"> }
 Null { @specialize<identifier, "nil" | "null"> }
 DropLiteral { @specialize<identifier, "empty" | "blank" | "forloop"> }
 
-assign[@name="TagName"] { @specialize<identifier, "assign"> }
-for[@name="TagName"] { @specialize<identifier, "for"> }
-liquid[@name="TagName"] { @specialize<identifier, "liquid"> }
-echo[@name="TagName"] { @specialize<identifier, "echo"> }
-unknownTagName[@name="TagName"] { identifier }
-
 @tokens {
-    BeginTag[closedBy=EndTag] { "{%" | "{%-" }
-    EndTag[openedBy=BeginTag] { "%}" | "-%}" }
-    BeginOutput[closedBy=EndOutput] { "{{" | "{{-" }
-    EndOutput[openedBy=BeginOutput] { "}}" | "-}}" }
+    TagStart[closedBy=TagEnd] { "{%" | "{%-" }
+    TagEnd[openedBy=TagStart] { "%}" | "-%}" }
+    OutputStart[closedBy=OutputEnd] { "{{" | "{{-" }
+    OutputEnd[openedBy=OutputStart] { "}}" | "-}}" }
 
-    identifier { @asciiLetter (@asciiLetter | @digit | "_")* }
+    identifier { @asciiLetter (@asciiLetter | @digit | "_" | "#")* }
     Number { @digit+ ("." @digit+)? }
     Quoted { "\"" (!["] | '\\"')* "\"" | "'" (!['] | "\\'")* "'"}
     HTML { (![{] | "{" ![{%])+ }
-    UnkownTagArg { (![%\r\n] | "%" ![}\r\n] | "%" @eof )+ }
+    UnknownTagArg { (![%\r\n] | "%" ![}\r\n] | "%" @eof )+ }
 
     "["
     "]"
@@ -69,5 +77,5 @@ unknownTagName[@name="TagName"] { identifier }
     linebreak { "\r"? "\n" }
     space { (" " | "\t")+ }
 
-    @precedence { BeginTag, BeginOutput, EndTag, EndOutput, Quoted, Number, identifier, space, "..", "=", ":", ".", "[", "]", UnkownTagArg }
+    @precedence { TagStart, OutputStart, TagEnd, OutputEnd, Quoted, Number, identifier, space, "..", "=", ":", ".", "[", "]", UnknownTagArg }
 }

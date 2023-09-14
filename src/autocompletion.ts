@@ -26,6 +26,11 @@ export const tagNameCompletion = ifIn(
   completeFromList(TagNames.map(tagName => ({label: tagName, type: "class"})))
 )
 
+export const forTagCompletion = ifIn(
+  ["Tag", "ForTag", "UnkownTagArg"],
+  completeFromList(["reversed", "limit", "offset"].map(tagName => ({label: tagName, type: "property"})))
+)
+
 export const filterNameCompletion = ifIn(
   ["FilterName"],
   completeFromList(FilterNames.map(tagName => ({label: tagName, type: "function"})))
@@ -37,5 +42,8 @@ export const valueCompletion = ifIn(
 )
 
 export const liquidCompletion = autocompletion({
-  override: [tagNameCompletion, filterNameCompletion, valueCompletion, ifIn(["HTML"], htmlCompletionSource)]
+  override: [
+    tagNameCompletion,
+    forTagCompletion,
+    filterNameCompletion, valueCompletion, ifIn(["HTML"], htmlCompletionSource)]
 })
