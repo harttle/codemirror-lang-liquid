@@ -16,7 +16,7 @@
     liquidTagContent { tagName<"liquid"> (linebreak+ tagContents)* linebreak* }
     unkownTagContent { unknownTagName (UnkownTagArg)* }
 
-    Value { (Identifier | SquareBracketProperty | Literal | Range) PropertyAccess* }
+    Value { (Identifier | SquareBracketProperty | literal | Range) PropertyAccess* }
     KeyValuePair { Identifier ":" Value }
     kv<T> { blk<T> ":" Value }
     filteredValue { Value (Filter)* }
@@ -27,7 +27,7 @@
     FilterArgs { FilterArg ("," FilterArg)* }
     FilterArg { Value | KeyValuePair }
 
-    Literal { Quoted | Number | Boolean | DropLiteral | Null }
+    literal { Quoted | Number | Boolean | DropLiteral | Null }
     SquareBracketProperty { "[" Value "]" }
     PropertyAccess { "." Identifier | SquareBracketProperty }
     Range { "(" Value ".." Value ")"}

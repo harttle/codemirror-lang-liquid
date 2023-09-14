@@ -35,11 +35,11 @@ LiquidTemplate(
 ==>
 
 LiquidTemplate(
-  Output(BeginOutput,Value(Literal(Quoted)),EndOutput)
+  Output(BeginOutput,Value(Quoted),EndOutput)
   HTML
-  Output(BeginOutput,Value(Literal(Quoted)),EndOutput)
+  Output(BeginOutput,Value(Quoted),EndOutput)
   HTML
-  Output(BeginOutput,Value(Literal(Quoted)),EndOutput)
+  Output(BeginOutput,Value(Quoted),EndOutput)
 )
 
 # Range
@@ -53,9 +53,9 @@ LiquidTemplate(
     BeginOutput
     Value(
       Range(
-        Value(Literal(Number))
+        Value(Number)
         ".."
-        Value(Literal(Number))
+        Value(Number)
       )
     )
     EndOutput
@@ -78,7 +78,7 @@ LiquidTemplate(
           PropertyAccess(Identifier)
         )
         Value(
-          SquareBracketProperty(Value(Literal(Quoted)))
+          SquareBracketProperty(Value(Quoted))
           PropertyAccess(Identifier)
         )
       )
@@ -100,7 +100,7 @@ LiquidTemplate(
   Output(
     BeginOutput
     Value(
-      Literal(Quoted),
+      Quoted,
       PropertyAccess(Identifier)
     )
     EndOutput
@@ -111,7 +111,7 @@ LiquidTemplate(
     Value(
       Identifier,
       PropertyAccess("." Identifier),
-      PropertyAccess(SquareBracketProperty("[" Value(Literal(Quoted)) "]")),
+      PropertyAccess(SquareBracketProperty("[" Value(Quoted) "]")),
       PropertyAccess(Identifier)
     )
     EndOutput
@@ -120,9 +120,9 @@ LiquidTemplate(
   Output(
     BeginOutput
     Value(
-      SquareBracketProperty(Value(Literal(Quoted))),
+      SquareBracketProperty(Value(Quoted)),
       PropertyAccess(Identifier),
-      PropertyAccess(SquareBracketProperty(Value(Literal(Number)))),
+      PropertyAccess(SquareBracketProperty(Value(Number))),
       PropertyAccess(SquareBracketProperty(Value(Identifier)))
     )
     EndOutput
@@ -140,7 +140,7 @@ LiquidTemplate(
             PropertyAccess(
               SquareBracketProperty(
                 Value(
-                  Literal(Quoted)
+                  Quoted
                   PropertyAccess(Identifier)
                 )
               )
@@ -150,7 +150,7 @@ LiquidTemplate(
       )
       PropertyAccess(
         SquareBracketProperty(
-          Value(Literal(Number))
+          Value(Number)
         )
       )
     )
@@ -172,7 +172,7 @@ LiquidTemplate(
       FilterName(Identifier),
       FilterArgs(
         FilterArg(
-          Value(Literal(Number))
+          Value(Number)
         )
       )
     )
@@ -192,11 +192,11 @@ LiquidTemplate(
     Value(Identifier),
     Filter(
       FilterName(Identifier),
-      FilterArgs(FilterArg(Value(Literal(Quoted))))
+      FilterArgs(FilterArg(Value(Quoted)))
     ),
     Filter(
       FilterName(Identifier),
-      FilterArgs(FilterArg(Value(Literal(Quoted))))
+      FilterArgs(FilterArg(Value(Quoted)))
     ),
     EndOutput
   )
@@ -215,14 +215,14 @@ LiquidTemplate(
     Filter(
       FilterName(Identifier),
       FilterArgs(
-        FilterArg(Value(Literal(Quoted))),
-        FilterArg(KeyValuePair(Identifier,Value(Literal(Number)))),
+        FilterArg(Value(Quoted)),
+        FilterArg(KeyValuePair(Identifier,Value(Number))),
         FilterArg(
           KeyValuePair(
             Identifier,
             Value(
               Identifier,
-              PropertyAccess(SquareBracketProperty(Value(Literal(Number)))),
+              PropertyAccess(SquareBracketProperty(Value(Number))),
               PropertyAccess(Identifier)
             )
           )
@@ -241,9 +241,9 @@ LiquidTemplate(
 ==>
 
 LiquidTemplate(
-  Output(BeginOutput,Value(Literal(Boolean)),EndOutput)
+  Output(BeginOutput,Value(Boolean),EndOutput)
   HTML
-  Output(BeginOutput,Value(Literal(Boolean)),EndOutput)
+  Output(BeginOutput,Value(Boolean),EndOutput)
 )
 
 # Property Access
@@ -276,7 +276,7 @@ LiquidTemplate(
       Identifier,
       PropertyAccess(
         SquareBracketProperty(
-          Value(Literal(Quoted))
+          Value(Quoted)
         )
       )
     )
@@ -349,8 +349,8 @@ LiquidTemplate(
     in
     Value(Identifier),
     reversed
-    limit ":" Value(Literal(Number))
-    offset ":" Value(Identifier, PropertyAccess(SquareBracketProperty(Value(Literal(Number)))))
+    limit ":" Value(Number)
+    offset ":" Value(Identifier, PropertyAccess(SquareBracketProperty(Value(Number))))
     EndTag
   )
 )
@@ -367,7 +367,7 @@ LiquidTemplate(
     TagName
     Identifier,
     "=",
-    Value(Literal(Quoted))
+    Value(Quoted)
     EndTag
   )
 )
@@ -383,11 +383,11 @@ LiquidTemplate(
     TagName
     Identifier,
     "=",
-    Value(Literal(Quoted))
+    Value(Quoted)
     Filter(
       FilterName(Identifier)
       FilterArgs(
-        FilterArg(Value(Literal(Quoted)))
+        FilterArg(Value(Quoted))
       )
     )
     EndTag
@@ -401,7 +401,7 @@ LiquidTemplate(
 ==>
 
 LiquidTemplate(
-  EchoTag(BeginTag, TagName, Value(Literal(Quoted)), EndTag)
+  EchoTag(BeginTag, TagName, Value(Quoted), EndTag)
 )
 
 # LiquidTag
@@ -417,9 +417,9 @@ LiquidTemplate(
 LiquidTemplate(
   LiquidTag(
     BeginTag TagName
-    TagName Identifier "=" Value(Literal(Quoted))
+    TagName Identifier "=" Value(Quoted)
     TagName(Identifier) UnkownTagArg
-    TagName Value(Literal(Quoted))
+    TagName Value(Quoted)
     EndTag
   )
 )
