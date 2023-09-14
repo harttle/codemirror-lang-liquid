@@ -37,6 +37,5 @@ export const valueCompletion = ifIn(
 )
 
 export const liquidCompletion = autocompletion({
-  // override: [tagNameCompletion, filterNameCompletion, valueCompletion, ifIn(["HTML"], htmlCompletionSource)]
-  override: [htmlCompletionSource]
+  override: [tagNameCompletion, filterNameCompletion, valueCompletion, ifIn(["HTML"], htmlCompletionSource)]
 })

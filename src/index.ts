@@ -1,5 +1,5 @@
 import {parser} from "./syntax.grammar"
-import {htmlCompletionSource } from "@codemirror/lang-html"
+// import {htmlCompletionSource } from "@codemirror/lang-html"
 import {LRLanguage, LanguageSupport, indentNodeProp, foldNodeProp, foldInside, delimitedIndent} from "@codemirror/language"
 import {highlight} from "./highlight"
 import {liquidCompletion} from "./autocompletion"
@@ -22,7 +22,7 @@ export const LiquidLanguage = LRLanguage.define({
     commentTokens: { block: { open: "{% comment %}", close: "{% endcomment %}" } },
     indentOnInput: /^\s*(<\/\w+\W)$/,
     wordChars: "_",
-    autocomplete: htmlCompletionSource
+    // autocomplete: htmlCompletionSource
   }
 })
 

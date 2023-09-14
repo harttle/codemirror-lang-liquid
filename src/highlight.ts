@@ -2,7 +2,7 @@ import {styleTags, tags as t} from "@lezer/highlight"
 
 export const highlight = styleTags({
   "TagName/...": t.tagName,
-  "FilterName/...": t.function(t.variableName),
+  "FilterName/...": t.modifier,
   Literal: t.literal,
   Identifier: t.name,
   "in": t.operatorKeyword,
