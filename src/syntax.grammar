@@ -9,21 +9,22 @@
     UnkownTag[@name="Tag"] { tag<unkownTagContent> }
 
     tagContents { assignTagContent | echoTagContent | forTagContent | unkownTagContent }
-    assignTagContent { assign Variable "=" filteredValue }
+    assignTagContent { assign VariableDefinition "=" filteredValue }
     echoTagContent { echo filteredValue }
-    forTagContent { for Variable kw<"in"> value (blk<"reversed"> | kv<"offset"> | kv<"limit">)* }
+    forTagContent { for VariableDefinition kw<"in"> value (arg<"reversed"> | kv<"offset"> | kv<"limit">)* }
     liquidTagContent { liquid (linebreak+ tagContents)* linebreak* }
     unkownTagContent { unknownTagName (UnkownTagArg)* }
 
-    value { Variable | MemberExpression | literal | Range }
+    value { VariableName | MemberExpression | literal | Range }
     literal { Quoted | Number | Boolean | DropLiteral | Null }
-	Variable { identifier }
+	VariableName { identifier }
+	VariableDefinition { identifier }
 	PropertyName { identifier }
 	MemberExpression { value ("." PropertyName | "[" value "]") | "[" value "]"}
     Range { "(" value ".." value ")"}
 
-    KeyValuePair { Variable ":" value }
-    kv<T> { blk<T> ":" value }
+    KeyValuePair { VariableDefinition ":" value }
+    kv<T> { arg<T> ":" value }
     filteredValue { value (Filter)* }
     Output { BeginOutput filteredValue EndOutput }
 
@@ -35,8 +36,7 @@
     tag<T> { BeginTag T EndTag }
 }
 
-
-blk<type> { @specialize[@name={type}]<identifier, type> }
+arg[@name="ArgumentName"]<type> { @specialize[@name={type}]<identifier, type> }
 kw[@name={type}]<type> { @specialize<identifier, type> }
 Boolean { @specialize<identifier, "true" | "false"> }
 Null { @specialize<identifier, "nil" | "null"> }
@@ -49,10 +49,10 @@ echo[@name="TagName"] { @specialize<identifier, "echo"> }
 unknownTagName[@name="TagName"] { identifier }
 
 @tokens {
-    BeginTag[closedBy="EndTag"] { "{%" | "{%-" }
-    EndTag[openedBy="BeginTag"] { "%}" | "-%}" }
-    BeginOutput[closedBy="EndOutput"] { "{{" | "{{-" }
-    EndOutput[openedBy="BeginOutput"] { "}}" | "-}}" }
+    BeginTag[closedBy=EndTag] { "{%" | "{%-" }
+    EndTag[openedBy=BeginTag] { "%}" | "-%}" }
+    BeginOutput[closedBy=EndOutput] { "{{" | "{{-" }
+    EndOutput[openedBy=BeginOutput] { "}}" | "-}}" }
 
     identifier { @asciiLetter (@asciiLetter | @digit | "_")* }
     Number { @digit+ ("." @digit+)? }
@@ -71,5 +71,3 @@ unknownTagName[@name="TagName"] { identifier }
 
     @precedence { BeginTag, BeginOutput, EndTag, EndOutput, Quoted, Number, identifier, space, "..", "=", ":", ".", "[", "]", UnkownTagArg }
 }
-
-@detectDelim

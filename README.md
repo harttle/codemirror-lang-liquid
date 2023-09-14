@@ -38,4 +38,5 @@ npm run start:demo
 ## TODO
 
 "{%" auto complete with "%}"
+HTML/CSS/JS: https://codemirror.net/examples/mixed-language/
 raw

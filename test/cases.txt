@@ -13,7 +13,7 @@ LiquidTemplate(HTML)
 
 ==>
 
-LiquidTemplate(Output(BeginOutput,Variable,EndOutput))
+LiquidTemplate(Output(BeginOutput,VariableName,EndOutput))
 
 # Multiple Ouputs
 
@@ -22,8 +22,8 @@ LiquidTemplate(Output(BeginOutput,Variable,EndOutput))
 ==>
 
 LiquidTemplate(
-  Output(BeginOutput,Variable,EndOutput)
-  Output(BeginOutput,Variable,EndOutput)
+  Output(BeginOutput,VariableName,EndOutput)
+  Output(BeginOutput,VariableName,EndOutput)
 )
 
 # Quoted
@@ -70,7 +70,7 @@ LiquidTemplate(
   Output(
     BeginOutput
     Range(
-      MemberExpression(Variable, PropertyName)
+      MemberExpression(VariableName, PropertyName)
       MemberExpression(MemberExpression(Quoted), PropertyName)
     )
     EndOutput
@@ -98,7 +98,7 @@ LiquidTemplate(
     MemberExpression(
       MemberExpression(
         MemberExpression(
-          Variable,
+          VariableName,
           PropertyName
         ),
         "[" Quoted "]"
@@ -118,7 +118,7 @@ LiquidTemplate(
         )
         Number
       )
-      "[" Variable "]"
+      "[" VariableName "]"
     )
     EndOutput
   )
@@ -127,9 +127,9 @@ LiquidTemplate(
     BeginOutput
     MemberExpression(
       MemberExpression(
-        Variable,
+        VariableName,
         MemberExpression(
-          MemberExpression(Variable, PropertyName)
+          MemberExpression(VariableName, PropertyName)
           MemberExpression(Quoted, PropertyName)
         )
       )
@@ -148,7 +148,7 @@ LiquidTemplate(
 LiquidTemplate(
   Output(
     BeginOutput
-    Variable
+    VariableName
     Filter(
       FilterName
       FilterArgs(
@@ -168,7 +168,7 @@ LiquidTemplate(
 LiquidTemplate(
   Output(
     BeginOutput
-    Variable
+    VariableName
     Filter(
       FilterName,
       FilterArgs(FilterArg(Quoted))
@@ -190,17 +190,17 @@ LiquidTemplate(
 LiquidTemplate(
   Output(
     BeginOutput
-    Variable
+    VariableName
     Filter(
       FilterName,
       FilterArgs(
         FilterArg(Quoted),
-        FilterArg(KeyValuePair(Variable,Number)),
+        FilterArg(KeyValuePair(VariableDefinition,Number)),
         FilterArg(
           KeyValuePair(
-            Variable
+            VariableDefinition
             MemberExpression(
-              MemberExpression(Variable, Number)
+              MemberExpression(VariableName, Number)
               PropertyName
             )
           )
@@ -233,7 +233,7 @@ LiquidTemplate(
 LiquidTemplate(
   Output(
     BeginOutput,
-    MemberExpression(Variable PropertyName)
+    MemberExpression(VariableName PropertyName)
     EndOutput
   )
 )
@@ -247,7 +247,7 @@ LiquidTemplate(
 LiquidTemplate(
   Output(
     BeginOutput
-    MemberExpression(Variable Quoted)
+    MemberExpression(VariableName Quoted)
     EndOutput
   )
 )
@@ -313,12 +313,12 @@ LiquidTemplate(
   ForTag(
     BeginTag
     TagName
-    Variable
+    VariableDefinition
     in
-    Variable,
-    reversed
-    limit ":" Number
-    offset ":" MemberExpression(Variable "[" Number "]")
+    VariableName,
+    ArgumentName(reversed)
+    ArgumentName(limit) ":" Number
+    ArgumentName(offset) ":" MemberExpression(VariableName "[" Number "]")
     EndTag
   )
 )
@@ -333,7 +333,7 @@ LiquidTemplate(
   AssignTag(
     BeginTag
     TagName
-    Variable,
+    VariableDefinition,
     "=",
     Quoted
     EndTag
@@ -349,7 +349,7 @@ LiquidTemplate(
   AssignTag(
     BeginTag
     TagName
-    Variable,
+    VariableDefinition,
     "=",
     Quoted
     Filter(
@@ -385,7 +385,7 @@ LiquidTemplate(
 LiquidTemplate(
   LiquidTag(
     BeginTag TagName
-    TagName Variable "=" Quoted
+    TagName VariableDefinition "=" Quoted
     TagName UnkownTagArg
     TagName Quoted
     EndTag
@@ -402,5 +402,5 @@ LiquidTemplate(
 LiquidTemplate(
   Tag(BeginTag, TagName, EndTag),
   HTML,
-  Output(BeginOutput, Variable, EndOutput)
+  Output(BeginOutput, VariableName, EndOutput)
 )
