@@ -2,11 +2,10 @@ import { htmlCompletionSource } from "@codemirror/lang-html"
 import {autocompletion, ifIn, completeFromList} from "@codemirror/autocomplete"
 
 const TagNames = [
-  "assign", "increment", "decrement", "capture", "endcapture",
+  "assign", "increment", "decrement", "capture",
   "cycle", "echo", "liquid",
-  "if", "elsif", "endif", "unless", "else", "endunless", "case", "when", "endcase",
-  "for", "endfor", "tablerow", "endtablerow",
-  "break", "continue",
+  "if", "unless", "case",
+  "for", "tablerow",
   "include", "layout", "render", "block",
   "#", "raw", "endraw", "comment", "endcomment",
 ]
@@ -19,31 +18,36 @@ const FilterNames = [
   'append', 'prepend', 'lstrip', 'downcase', 'upcase', 'remove', 'remove_first', 'remove_last', 'rstrip', 'split', 'strip', 'strip_newlines', 'capitalize', 'replace', 'replace_first', 'replace_last', 'truncate', 'truncatewords',
   'json', 'raw', 'default'
 ]
-const LiteralValues = ["nil", "null", "false", "true", "empty", "blank"]
 
-export const tagNameCompletion = ifIn(
-  ["TagName"],
-  completeFromList(TagNames.map(tagName => ({label: tagName, type: "class"})))
-)
+const tagNameCompletions = [
+  ifCompletion(["TagName"], TagNames, "class"),
+  ifCompletion(["CaptureBlock"], ["endcapture"], "class"),
+  ifCompletion(["ForBlock"], ["break", "continue", "endfor"], "class"),
+  ifCompletion(["IfBlock"], [ "elsif", "else", "endif", ], "class"),
+  ifCompletion(["UnlessBlock"], [ "elsif", "else", "endunless", ], "class"),
+  ifCompletion(["CaseBlock"], [  "when", "endcase", ], "class"),
+  ifCompletion(["TableRowBlock"], [  "endtablerow", ], "class"),
+]
 
-export const forTagCompletion = ifIn(
-  ["Tag", "ForTag", "UnkownTagArg"],
-  completeFromList(["reversed", "limit", "offset"].map(tagName => ({label: tagName, type: "property"})))
-)
+const argumentCompletions = [
+  ifCompletion(["ForTag"], ["reversed", "limit", "offset"], "property"),
+  ifCompletion(["IncludeTag", "RenderTag", "LayoutTag"], ["with"], "keyword"),
+  ifCompletion(["TableRowTag"], ["offset", "limit", "cols"], "keyword"),
+]
 
-export const filterNameCompletion = ifIn(
-  ["FilterName"],
-  completeFromList(FilterNames.map(tagName => ({label: tagName, type: "function"})))
-)
+const filterNameCompletion = ifCompletion(["FilterName"], FilterNames, "function")
 
-export const valueCompletion = ifIn(
-  ["VariableName"],
-  completeFromList(LiteralValues.map(tagName => ({label: tagName, type: "keyword"})))
-)
+const valueCompletion = ifCompletion(["VariableName"], ["nil", "null", "false", "true", "empty", "blank"], "keyword") 
+
+function ifCompletion(nodes: string[], tagNames: string[], type: string) {
+  return ifIn(nodes, completeFromList(tagNames.map(tagName => ({label: tagName, type}))))
+}
 
 export const liquidCompletion = autocompletion({
   override: [
-    tagNameCompletion,
-    forTagCompletion,
-    filterNameCompletion, valueCompletion, ifIn(["HTML"], htmlCompletionSource)]
+    ...tagNameCompletions,
+    ...argumentCompletions,
+    filterNameCompletion,
+    valueCompletion,
+    ifIn(["HTML"], htmlCompletionSource)]
 })

@@ -1,15 +1,13 @@
 # Liquid language package for CodeMirror 6
 
-This is Liquid language package for CodeMirror 6.
-
-## Get Started
-
 ## Features
 
 - Syntax highlighting: tag, output, filter, expressions, literals (strings, boolean, etc.)
 - Open/Close matching: `{%` matches `%}`, `{{` matches `}}`, etc.
+- Contextual autocompletion
+- Tag argument autocompletion
 
-## Dev
+## Get Started
 
 Build
 
@@ -38,7 +36,4 @@ npm run start:demo
 ## TODO
 
 HTML/CSS/JS: https://codemirror.net/examples/mixed-language/
-arg completion for each tag
-raw
-end tags
-internal tags
+raw/comment

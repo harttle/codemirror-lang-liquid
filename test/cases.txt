@@ -304,22 +304,27 @@ LiquidTemplate(
 # ForTag
 
 {% for i in obj reversed limit : 3 offset:rows[0] %}
+{% endfor %}
 
 ==>
 
 LiquidTemplate(
-  Tag(
-    TagStart
-    ForTag(
-      TagName
-      VariableDefinition
-      in
-      VariableName,
-      ArgumentName(reversed)
-      ArgumentName(limit) ":" Number
-      ArgumentName(offset) ":" MemberExpression(VariableName "[" Number "]")
+  ForBlock(
+    Tag(
+      TagStart
+      ForTag(
+        TagName
+        VariableDefinition
+        in
+        VariableName,
+        ArgumentName(reversed)
+        ArgumentName(limit) ":" Number
+        ArgumentName(offset) ":" MemberExpression(VariableName "[" Number "]")
+      )
+      TagEnd
     )
-    TagEnd
+    HTML
+    Tag(TagStart EndForTag(TagName) TagEnd)
   )
 )
 
@@ -397,25 +402,44 @@ LiquidTemplate(
   )
 )
 
-# TableRowTag
+# RenderBlock
 
-{% tablerow i in obj cols:3 limit : 3 offset:rows[0] %}
+{% render "color" with "red", shape: "rect" %}
 
 ==>
 
 LiquidTemplate(
   Tag(
     TagStart
-    TableRowTag(
-      TagName
-      VariableDefinition
-      in
-      VariableName,
-      ArgumentName(cols) ":" Number
-      ArgumentName(limit) ":" Number
-      ArgumentName(offset) ":" MemberExpression(VariableName "[" Number "]")
-    )
+    RenderTag(TagName Quoted "with" Quoted "," KeyValuePair(ArgumentName ":" Quoted))
     TagEnd
+  )
+)
+
+# TableRowTag
+
+{% tablerow i in obj cols:3 limit : 3 offset:rows[0] %}
+{% endtablerow %}
+
+==>
+
+LiquidTemplate(
+  TableRowBlock(
+    Tag(
+      TagStart
+      TableRowTag(
+        TagName
+        VariableDefinition
+        in
+        VariableName,
+        ArgumentName(cols) ":" Number
+        ArgumentName(limit) ":" Number
+        ArgumentName(offset) ":" MemberExpression(VariableName "[" Number "]")
+      )
+      TagEnd
+    )
+    HTML
+    Tag(TagStart EndTableRowTag(TagName) TagEnd)
   )
 )
 

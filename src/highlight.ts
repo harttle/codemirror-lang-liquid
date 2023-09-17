@@ -5,7 +5,7 @@ export const highlight = styleTags({
   "FilterName/...": t.modifier,
   Literal: t.literal,
   Identifier: t.name,
-  "in": t.operatorKeyword,
+  "in with": t.operatorKeyword,
   "ArgumentName/...": t.definition(t.propertyName),
   "VariableDefinition/...": t.variableName,
   "VariableName/...": t.variableName,

@@ -1,28 +1,66 @@
-@top LiquidTemplate { (Output | outerTag | HTML)* }
+@top LiquidTemplate { template* }
 
-@skip { space } {
-    outerTag[@name="Tag"] { tag<innerTag> | tag<LiquidTag> }
-    innerTag {
-        AssignTag { tagName<"assign"> VariableDefinition "=" filteredValue } |
-        BlockTag { tagName<"block"> Label } |
-        BreakTag { tagName<"break"> } |
-        CaptureTag { tagName<"capture"> VariableDefinition } |
-        CaseTag { tagName<"case"> value } |
-        ContinueTag { tagName<"continue"> } |
-        CycleTag { tagName<"cycle"> (Label ":")? value ("," value)* } |
-        DecrementTag { tagName<"decrement"> (VariableName | MemberExpression) } |
-        EchoTag { tagName<"echo"> filteredValue } |
-        ForTag { tagName<"for"> VariableDefinition kw<"in"> value (arg<"reversed"> | kv<"offset"> | kv<"limit"> | ArgumentName | KeyValuePair)* } |
-        IfTag { tagName<"if"> value } |
-        Include { tagName<"include"> value ("with" ":" value)? ("," KeyValuePair)* } |
-        IncrementTag { tagName<"increment"> (VariableName | MemberExpression) } |
-        InlineCommentTag { tagName<"#"> UnknownTagArg? } |
-        Layout { tagName<"layout"> value ("with" ":" value)? ("," KeyValuePair)* } |
-        Render { tagName<"render"> value ("with" ":" value)? ("," KeyValuePair)* } |
-        TableRowTag { tagName<"tablerow"> VariableDefinition kw<"in"> value (kv<"cols"> | kv<"offset"> | kv<"limit"> | ArgumentName | KeyValuePair)* } |
-        UnlessTag { tagName<"unless"> value } |
-        UnknownTag { unknownTagName (UnknownTagArg)* }
+template { Output | tagBlock | HTML }
+forTemplate { template | tag<ContinueTag> | tag<BreakTag> }
+tagBlock {
+    tag<AssignTag | BlockTag | CycleTag | IncrementTag | DecrementTag | EchoTag | IncludeTag | RenderTag | LayoutTag | LiquidTag | UnknownTag> |
+    CaptureBlock {
+        tag<CaptureTag>
+        template*
+        tag<EndCaptureTag>
+    } |
+    CaseBlock {
+        tag<CaseTag>
+        (tag<WhenTag> template*)?
+        (tag<ElseTag> template*)?
+        tag<EndCaseTag>
+    } |
+    ForBlock {
+        tag<ForTag> forTemplate*
+        (tag<ElseTag> forTemplate*)?
+        tag<EndForTag>
+    } |
+    IfBlock {
+        tag<IfTag> template*
+        (tag<ElsifTag> template*)?
+        (tag<ElseTag> template*)?
+        tag<EndIfTag>
+    } |
+    TableRowBlock {
+        tag<TableRowTag> template*
+        (tag<ElseTag> template*)?
+        tag<EndTableRowTag>
     }
+}
+@skip { space } {
+    innerTag { AssignTag | BlockTag | BreakTag | CaptureTag | EndCaptureTag | CaseTag | WhenTag | EndCaseTag | ContinueTag | CycleTag | DecrementTag | EchoTag | ForTag | EndForTag | IfTag | ElsifTag | ElseTag | EndIfTag | IncludeTag | IncrementTag | InlineCommentTag | LayoutTag | RenderTag | TableRowTag | EndTableRowTag | UnlessTag | UnknownTag }
+    AssignTag { tagName<"assign"> VariableDefinition "=" filteredValue }
+    BlockTag { tagName<"block"> Label }
+    BreakTag { tagName<"break"> }
+    CaptureTag { tagName<"capture"> VariableDefinition }
+    EndCaptureTag { tagName<"endcapture"> }
+    CaseTag { tagName<"case"> value }
+    WhenTag { tagName<"when"> value }
+    EndCaseTag { tagName<"endcase"> }
+    ContinueTag { tagName<"continue"> }
+    CycleTag { tagName<"cycle"> (Label ":")? value ("," value)* }
+    DecrementTag { tagName<"decrement"> (VariableName | MemberExpression) }
+    EchoTag { tagName<"echo"> filteredValue }
+    ForTag { tagName<"for"> VariableDefinition kw<"in"> value (arg<"reversed"> | kv<"offset"> | kv<"limit">)* tagArg* }
+    EndForTag { tagName<"endfor"> }
+    IfTag { tagName<"if"> value }
+    ElsifTag { tagName<"elsif"> value }
+    ElseTag { tagName<"else"> value }
+    EndIfTag { tagName<"endif"> value }
+    IncludeTag { tagName<"include"> value (renderArgument ("," renderArgument)*)? }
+    IncrementTag { tagName<"increment"> (VariableName | MemberExpression) }
+    InlineCommentTag { tagName<"#"> UnknownTagArg? }
+    LayoutTag { tagName<"layout"> value (renderArgument ("," renderArgument)*)? }
+    RenderTag { tagName<"render"> value (renderArgument ("," renderArgument)*)? }
+    TableRowTag { tagName<"tablerow"> VariableDefinition kw<"in"> value (kv<"cols"> | kv<"offset"> | kv<"limit"> | ArgumentName | KeyValuePair)* }
+    EndTableRowTag { tagName<"endtablerow"> }
+    UnlessTag { tagName<"unless"> value }
+    UnknownTag { unknownTagName (UnknownTagArg)* }
     LiquidTag { tagName<"liquid"> (linebreak+ innerTag)* linebreak* }
 
     value { VariableName | MemberExpression | literal | Range }
@@ -37,6 +75,7 @@
     ArgumentName { identifier }
     KeyValuePair { ArgumentName ":" value }
     kv<T> { arg<T> ":" value }
+    renderArgument { kw<"with"> ":"? value | KeyValuePair }
     filteredValue { value (Filter)* }
     Output { OutputStart filteredValue OutputEnd }
 
@@ -45,9 +84,10 @@
     FilterArgs { FilterArg ("," FilterArg)* }
     FilterArg { value | KeyValuePair }
 
-    tag<T> { TagStart T TagEnd }
+    tag[@name="Tag"]<T> { TagStart T TagEnd }
     tagName[@name="TagName"]<T> { @specialize<identifier, T> }
     unknownTagName[@name="TagName"] { identifier }
+    tagArg { ArgumentName | KeyValuePair }
 }
 
 arg[@name="ArgumentName"]<type> { @specialize[@name={type}]<identifier, type> }
@@ -70,6 +110,7 @@ DropLiteral { @specialize<identifier, "empty" | "blank" | "forloop"> }
 
     "["
     "]"
+    ","
     "."
     ":"
     "="
