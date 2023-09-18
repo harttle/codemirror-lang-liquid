@@ -1,5 +1,6 @@
 import { htmlCompletionSource } from "@codemirror/lang-html"
-import {autocompletion, ifIn, completeFromList} from "@codemirror/autocomplete"
+import {pickedCompletion, insertCompletionText, autocompletion, ifIn, ifNotIn, completeFromList} from "@codemirror/autocomplete"
+import {EditorView} from "@codemirror/view"
 
 const TagNames = [
   "assign", "increment", "decrement", "capture",
@@ -20,15 +21,15 @@ const FilterNames = [
 ]
 
 const tagNameCompletions = [
-  ifCompletion(["TagName"], TagNames, "class"),
-  ifCompletion(["CaptureBlock"], ["endcapture"], "class"),
-  ifCompletion(["ForBlock"], ["break", "continue", "endfor"], "class"),
-  ifCompletion(["IfBlock"], [ "elsif", "else", "endif", ], "class"),
-  ifCompletion(["UnlessBlock"], [ "elsif", "else", "endunless", ], "class"),
-  ifCompletion(["CaseBlock"], [  "when", "endcase", ], "class"),
-  ifCompletion(["TableRowBlock"], [ "endtablerow", ], "class"),
-  ifCompletion(["CommentBlock"], [ "endcomment", ], "class"),
-  ifCompletion(["RawBlock"], [ "endraw", ], "class"),
+  ifTagNameCompletion(["TagName"], TagNames, "class"),
+  ifTagNameCompletion(["CaptureBlock"], ["endcapture"], "class"),
+  ifTagNameCompletion(["ForBlock"], ["break", "continue", "endfor"], "class"),
+  ifTagNameCompletion(["IfBlock"], [ "elsif", "else", "endif", ], "class"),
+  ifTagNameCompletion(["UnlessBlock"], [ "elsif", "else", "endunless", ], "class"),
+  ifTagNameCompletion(["CaseBlock"], [  "when", "endcase", ], "class"),
+  ifTagNameCompletion(["TableRowBlock"], [ "endtablerow", ], "class"),
+  ifTagNameCompletion(["CommentBlock"], [ "endcomment", ], "class"),
+  ifTagNameCompletion(["RawBlock"], [ "endraw", ], "class"),
 ]
 
 const argumentCompletions = [
@@ -41,8 +42,35 @@ const filterNameCompletion = ifCompletion(["FilterName"], FilterNames, "function
 
 const valueCompletion = ifCompletion(["VariableName"], ["nil", "null", "false", "true", "empty", "blank"], "keyword") 
 
+const outputCompletion = ifNotIn(["Tag", "Output"], completeFromList([{label: "{{ value }}", type: "variable", apply: (view, completion, from, to) => {
+  view.dispatch(view.state.update({
+    ...insertCompletionText(view.state, completion.label, from, to),
+    annotations: pickedCompletion.of(completion)
+  }))
+  const selection = view.state.wordAt(from + 3)!
+  view.dispatch({selection})
+}}]))
+
+function ifTagNameCompletion(nodes: string[], tagNames: string[], type: string) {
+  return ifIn(nodes, completeFromList(tagNames.map(tagName => ({label: tagName, type, apply: (view, completion, from, to) => {
+    const insert = isNothingAfter(view, to) ? `${tagName} %}` : tagName
+    view.dispatch(view.state.update({
+      ...insertCompletionText(view.state, insert, from, to),
+      annotations: pickedCompletion.of(completion)
+    }))
+  }}))))
+}
+
 function ifCompletion(nodes: string[], tagNames: string[], type: string) {
   return ifIn(nodes, completeFromList(tagNames.map(tagName => ({label: tagName, type}))))
+}
+
+function isNothingAfter(view: EditorView, begin: number) {
+    for (let iter = view.state.doc.iterRange(begin); !iter.next().done;) {
+      if (["\t", " "].includes(iter.value)) continue
+      else if (iter.lineBreak) return true
+      else return false
+    }
 }
 
 export const liquidCompletion = autocompletion({
@@ -51,5 +79,6 @@ export const liquidCompletion = autocompletion({
     ...argumentCompletions,
     filterNameCompletion,
     valueCompletion,
-    ifIn(["HTML"], htmlCompletionSource)]
+    outputCompletion,
+    ifNotIn(["Tag", "Output"], htmlCompletionSource)]
 })

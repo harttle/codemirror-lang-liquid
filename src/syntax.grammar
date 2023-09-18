@@ -49,23 +49,23 @@ tagBlock {
     BlockTag { tagName<"block"> Label }
     BreakTag { tagName<"break"> }
     CaptureTag { tagName<"capture"> VariableDefinition }
-    EndCaptureTag { tagName<"endcapture"> }
     CaseTag { tagName<"case"> value }
     CommentTag { tagName<"comment"> }
     WhenTag { tagName<"when"> value }
-    EndCaseTag { tagName<"endcase"> }
     ContinueTag { tagName<"continue"> }
     CycleTag { tagName<"cycle"> (Label ":")? value ("," value)* }
     DecrementTag { tagName<"decrement"> (VariableName | MemberExpression) }
     EchoTag { tagName<"echo"> filteredValue }
     ElsifTag { tagName<"elsif"> value }
     ElseTag { tagName<"else"> value }
+    EndCaptureTag { tagName<"endcapture"> }
+    EndCaseTag { tagName<"endcase"> }
     EndCommentTag { tagName<"endcomment"> }
-    EndIfTag { tagName<"endif"> value }
-    EndRawTag { tagName<"endraw"> }
-    ForTag { tagName<"for"> VariableDefinition kw<"in"> value (arg<"reversed"> | kv<"offset"> | kv<"limit">)* tagArg* }
     EndForTag { tagName<"endfor"> }
+    EndIfTag { tagName<"endif"> }
+    EndRawTag { tagName<"endraw"> }
     EndTableRowTag { tagName<"endtablerow"> }
+    ForTag { tagName<"for"> VariableDefinition kw<"in"> value (arg<"reversed"> | kv<"offset"> | kv<"limit">)* tagArg* }
     IfTag { tagName<"if"> value }
     IncludeTag { tagName<"include"> value (renderArgument ("," renderArgument)*)? }
     IncrementTag { tagName<"increment"> (VariableName | MemberExpression) }

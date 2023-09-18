@@ -1,10 +1,11 @@
 import {parser} from "./syntax.grammar"
-// import {htmlCompletionSource } from "@codemirror/lang-html"
-import {LRLanguage, LanguageSupport, indentNodeProp, foldNodeProp, foldInside, delimitedIndent} from "@codemirror/language"
+import {parseMixed} from "@lezer/common"
+import {html} from "@codemirror/lang-html"
+import {Language, LRLanguage, LanguageSupport, indentNodeProp, foldNodeProp, foldInside, delimitedIndent} from "@codemirror/language"
 import {highlight} from "./highlight"
 import {liquidCompletion} from "./autocompletion"
 
-export const LiquidLanguage = LRLanguage.define({
+export const BaseLiquidLanguage = LRLanguage.define({
   parser: parser.configure({
     props: [
       indentNodeProp.add({
@@ -22,10 +23,26 @@ export const LiquidLanguage = LRLanguage.define({
     commentTokens: { block: { open: "{% comment %}", close: "{% endcomment %}" } },
     indentOnInput: /^\s*(<\/\w+\W)$/,
     wordChars: "_",
-    // autocomplete: htmlCompletionSource
   }
 })
 
+const htmlLanguageSupport = html()
+
+export const LiquidLanguage = BaseLiquidLanguage.configure({
+  wrap: parseMixed(node => node.type.isTop ? {
+    parser: htmlLanguageSupport.language.parser,
+    overlay: n => n.name == "Text" || n.name == "RawText"
+  } : null)
+}, "liquid")
+
+function bracketsSupport(lang: Language) {
+  return lang.data.of({closeBrackets: {brackets: "(['\""}})
+}
+
 export function Liquid() {
-  return new LanguageSupport(LiquidLanguage, [liquidCompletion])
+  return new LanguageSupport(LiquidLanguage, [
+    liquidCompletion,
+    bracketsSupport(htmlLanguageSupport.language),
+    bracketsSupport(BaseLiquidLanguage)
+  ])
 }
