@@ -1,11 +1,11 @@
-# HTML
+# Text
 
 <div></div>
 {}
 
 ==>
 
-LiquidTemplate(HTML)
+LiquidTemplate(Text)
 
 # Ouput
 
@@ -36,9 +36,9 @@ LiquidTemplate(
 
 LiquidTemplate(
   Output(OutputStart,Quoted,OutputEnd)
-  HTML
+  Text
   Output(OutputStart,Quoted,OutputEnd)
-  HTML
+  Text
   Output(OutputStart,Quoted,OutputEnd)
 )
 
@@ -92,7 +92,7 @@ LiquidTemplate(
     MemberExpression(Quoted, PropertyName)
     OutputEnd
   ),
-  HTML,
+  Text,
   Output(
     OutputStart
     MemberExpression(
@@ -107,7 +107,7 @@ LiquidTemplate(
     )
     OutputEnd
   ),
-  HTML,
+  Text,
   Output(
     OutputStart
     MemberExpression(
@@ -122,7 +122,7 @@ LiquidTemplate(
     )
     OutputEnd
   )
-  HTML,
+  Text,
   Output(
     OutputStart
     MemberExpression(
@@ -220,7 +220,7 @@ LiquidTemplate(
 
 LiquidTemplate(
   Output(OutputStart,Boolean,OutputEnd)
-  HTML
+  Text
   Output(OutputStart,Boolean,OutputEnd)
 )
 
@@ -265,7 +265,7 @@ LiquidTemplate(
     UnknownTag(TagName)
     TagEnd
   )
-  HTML
+  Text
   Tag(
     TagStart
     UnknownTag(TagName)
@@ -323,7 +323,7 @@ LiquidTemplate(
       )
       TagEnd
     )
-    HTML
+    Text
     Tag(TagStart EndForTag(TagName) TagEnd)
   )
 )
@@ -438,8 +438,56 @@ LiquidTemplate(
       )
       TagEnd
     )
-    HTML
+    Text
     Tag(TagStart EndTableRowTag(TagName) TagEnd)
+  )
+)
+
+# RawBlock
+
+{% raw %}
+  {% for i in array %}
+{% endraw %}
+
+==>
+
+LiquidTemplate(
+  RawBlock(
+    Tag(
+      TagStart
+      RawTag(TagName)
+      TagEnd
+    )
+    RawText
+    Tag(
+      TagStart
+      EndRawTag(TagName)
+      TagEnd
+    )
+  )
+)
+
+# CommentBlock
+
+{% comment %}
+  {% for i in array %}
+{% endcomment %}
+
+==>
+
+LiquidTemplate(
+  CommentBlock(
+    Tag(
+      TagStart
+      CommentTag(TagName)
+      TagEnd
+    )
+    CommentText
+    Tag(
+      TagStart
+      EndCommentTag(TagName)
+      TagEnd
+    )
   )
 )
 
@@ -452,6 +500,6 @@ LiquidTemplate(
 
 LiquidTemplate(
   Tag(TagStart, UnknownTag(TagName), TagEnd),
-  HTML,
+  Text,
   Output(OutputStart, VariableName, OutputEnd)
 )

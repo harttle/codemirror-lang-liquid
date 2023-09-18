@@ -1,6 +1,6 @@
 @top LiquidTemplate { template* }
 
-template { Output | tagBlock | HTML }
+template { Output | tagBlock | Text }
 forTemplate { template | tag<ContinueTag> | tag<BreakTag> }
 tagBlock {
     tag<AssignTag | BlockTag | CycleTag | IncrementTag | DecrementTag | EchoTag | IncludeTag | RenderTag | LayoutTag | LiquidTag | UnknownTag> |
@@ -30,35 +30,50 @@ tagBlock {
         tag<TableRowTag> template*
         (tag<ElseTag> template*)?
         tag<EndTableRowTag>
+    } |
+    CommentBlock {
+        tag<CommentTag>
+        CommentText
+        endcommentTag
+    } |
+    RawBlock {
+        tag<RawTag>
+        RawText
+        endrawTag
     }
 }
+
 @skip { space } {
-    innerTag { AssignTag | BlockTag | BreakTag | CaptureTag | EndCaptureTag | CaseTag | WhenTag | EndCaseTag | ContinueTag | CycleTag | DecrementTag | EchoTag | ForTag | EndForTag | IfTag | ElsifTag | ElseTag | EndIfTag | IncludeTag | IncrementTag | InlineCommentTag | LayoutTag | RenderTag | TableRowTag | EndTableRowTag | UnlessTag | UnknownTag }
+    innerTag { AssignTag | BlockTag | BreakTag | CaptureTag | EndCaptureTag | CaseTag | WhenTag | EndCaseTag | ContinueTag | CycleTag | DecrementTag | EchoTag | ForTag | EndForTag | IfTag | ElsifTag | ElseTag | EndIfTag | IncludeTag | IncrementTag | InlineCommentTag | LayoutTag | RenderTag | TableRowTag | EndTableRowTag | UnlessTag | RawTag | EndRawTag | UnknownTag }
     AssignTag { tagName<"assign"> VariableDefinition "=" filteredValue }
     BlockTag { tagName<"block"> Label }
     BreakTag { tagName<"break"> }
     CaptureTag { tagName<"capture"> VariableDefinition }
     EndCaptureTag { tagName<"endcapture"> }
     CaseTag { tagName<"case"> value }
+    CommentTag { tagName<"comment"> }
     WhenTag { tagName<"when"> value }
     EndCaseTag { tagName<"endcase"> }
     ContinueTag { tagName<"continue"> }
     CycleTag { tagName<"cycle"> (Label ":")? value ("," value)* }
     DecrementTag { tagName<"decrement"> (VariableName | MemberExpression) }
     EchoTag { tagName<"echo"> filteredValue }
-    ForTag { tagName<"for"> VariableDefinition kw<"in"> value (arg<"reversed"> | kv<"offset"> | kv<"limit">)* tagArg* }
-    EndForTag { tagName<"endfor"> }
-    IfTag { tagName<"if"> value }
     ElsifTag { tagName<"elsif"> value }
     ElseTag { tagName<"else"> value }
+    EndCommentTag { tagName<"endcomment"> }
     EndIfTag { tagName<"endif"> value }
+    EndRawTag { tagName<"endraw"> }
+    ForTag { tagName<"for"> VariableDefinition kw<"in"> value (arg<"reversed"> | kv<"offset"> | kv<"limit">)* tagArg* }
+    EndForTag { tagName<"endfor"> }
+    EndTableRowTag { tagName<"endtablerow"> }
+    IfTag { tagName<"if"> value }
     IncludeTag { tagName<"include"> value (renderArgument ("," renderArgument)*)? }
     IncrementTag { tagName<"increment"> (VariableName | MemberExpression) }
     InlineCommentTag { tagName<"#"> UnknownTagArg? }
     LayoutTag { tagName<"layout"> value (renderArgument ("," renderArgument)*)? }
+    RawTag { tagName<"raw"> }
     RenderTag { tagName<"render"> value (renderArgument ("," renderArgument)*)? }
     TableRowTag { tagName<"tablerow"> VariableDefinition kw<"in"> value (kv<"cols"> | kv<"offset"> | kv<"limit"> | ArgumentName | KeyValuePair)* }
-    EndTableRowTag { tagName<"endtablerow"> }
     UnlessTag { tagName<"unless"> value }
     UnknownTag { unknownTagName (UnknownTagArg)* }
     LiquidTag { tagName<"liquid"> (linebreak+ innerTag)* linebreak* }
@@ -88,6 +103,8 @@ tagBlock {
     tagName[@name="TagName"]<T> { @specialize<identifier, T> }
     unknownTagName[@name="TagName"] { identifier }
     tagArg { ArgumentName | KeyValuePair }
+    endcommentTag[@name=Tag] { endcommentTagStart EndCommentTag TagEnd }
+    endrawTag[@name=Tag] { endrawTagStart EndRawTag TagEnd }
 }
 
 arg[@name="ArgumentName"]<type> { @specialize[@name={type}]<identifier, type> }
@@ -95,6 +112,14 @@ kw[@name={type}]<type> { @specialize<identifier, type> }
 Boolean { @specialize<identifier, "true" | "false"> }
 Null { @specialize<identifier, "nil" | "null"> }
 DropLiteral { @specialize<identifier, "empty" | "blank" | "forloop"> }
+@external tokens comment from "./tokens" {
+  endcommentTagStart[@name="TagStart", closedBy="TagEnd"]
+  CommentText
+}
+@external tokens raw from "./tokens" {
+  endrawTagStart[@name="TagStart", closedBy="TagEnd"]
+  RawText
+}
 
 @tokens {
     TagStart[closedBy=TagEnd] { "{%" | "{%-" }
@@ -105,7 +130,7 @@ DropLiteral { @specialize<identifier, "empty" | "blank" | "forloop"> }
     identifier { @asciiLetter (@asciiLetter | @digit | "_" | "#")* }
     Number { @digit+ ("." @digit+)? }
     Quoted { "\"" (!["] | '\\"')* "\"" | "'" (!['] | "\\'")* "'"}
-    HTML { (![{] | "{" ![{%])+ }
+    Text { (![{] | "{" ![{%])+ }
     UnknownTagArg { (![%\r\n] | "%" ![}\r\n] | "%" @eof )+ }
 
     "["

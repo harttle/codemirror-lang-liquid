@@ -1,27 +1,28 @@
 import {EditorView, basicSetup} from "codemirror"
 import {Liquid} from "../dist"
 
-const doc = `{% assign people = "alice, bob, carol" | split: ", " -%}
-<h1>{{ people | join: empty }}
+const doc = `{% layout "main.liquid" with "dark", url: "/" %}
+{%- assign people = "alice, bob, carol" | split: ", " -%}
+
 <ul>
-{%- for i in (0..2) reversed limit:people.size offset:1 %}
-  <li>
-    <a href="{{people[i] | prepend: "http://example.com/"}}">
-      {{ people[i] | capitalize }}
-   </a>
-  </li>
-{%- endfor%}
+{% for i in (0..2) reversed limit:people.size offset:1 %}
+  <li><a href="{{people[i] | prepend: "http://example.com/"}}">
+    {{ people[i] | capitalize | append: empty }}
+  </a></li>
+{% endfor %}
 </ul>
 
 {% liquid
-  assign favorite_food2 = "pizza"
-  assign age2 = 35
-  capture about_me2
-    echo "I am  and my favorite food is nnn."
+  render "footer.liquid" with "dark"
+  capture about
+    echo "This is a Liquid language demo"
   endcapture
+  echo about
+%}
 
-  echo about_me2
-%}`
+{% comment %}
+{% assign foo="bar" %}
+{% endcomment %}`
 
 let editor = new EditorView({
   doc,

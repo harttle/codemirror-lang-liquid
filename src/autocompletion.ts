@@ -7,7 +7,7 @@ const TagNames = [
   "if", "unless", "case",
   "for", "tablerow",
   "include", "layout", "render", "block",
-  "#", "raw", "endraw", "comment", "endcomment",
+  "#", "raw", "comment",
 ]
 const FilterNames = [
   'escape', 'escape_once', 'newline_to_br', 'strip_html',
@@ -26,7 +26,9 @@ const tagNameCompletions = [
   ifCompletion(["IfBlock"], [ "elsif", "else", "endif", ], "class"),
   ifCompletion(["UnlessBlock"], [ "elsif", "else", "endunless", ], "class"),
   ifCompletion(["CaseBlock"], [  "when", "endcase", ], "class"),
-  ifCompletion(["TableRowBlock"], [  "endtablerow", ], "class"),
+  ifCompletion(["TableRowBlock"], [ "endtablerow", ], "class"),
+  ifCompletion(["CommentBlock"], [ "endcomment", ], "class"),
+  ifCompletion(["RawBlock"], [ "endraw", ], "class"),
 ]
 
 const argumentCompletions = [
