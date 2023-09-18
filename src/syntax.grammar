@@ -26,6 +26,12 @@ tagBlock {
         (tag<ElseTag> template*)?
         tag<EndIfTag>
     } |
+    UnlessBlock {
+        tag<UnlessTag> template*
+        (tag<ElsifTag> template*)?
+        (tag<ElseTag> template*)?
+        tag<EndUnlessTag>
+    } |
     TableRowBlock {
         tag<TableRowTag> template*
         (tag<ElseTag> template*)?
@@ -56,8 +62,8 @@ tagBlock {
     CycleTag { tagName<"cycle"> (Label ":")? value ("," value)* }
     DecrementTag { tagName<"decrement"> (VariableName | MemberExpression) }
     EchoTag { tagName<"echo"> filteredValue }
-    ElsifTag { tagName<"elsif"> value }
-    ElseTag { tagName<"else"> value }
+    ElsifTag { tagName<"elsif"> value? }
+    ElseTag { tagName<"else"> }
     EndCaptureTag { tagName<"endcapture"> }
     EndCaseTag { tagName<"endcase"> }
     EndCommentTag { tagName<"endcomment"> }
@@ -65,8 +71,9 @@ tagBlock {
     EndIfTag { tagName<"endif"> }
     EndRawTag { tagName<"endraw"> }
     EndTableRowTag { tagName<"endtablerow"> }
+    EndUnlessTag { tagName<"endunless"> }
     ForTag { tagName<"for"> VariableDefinition kw<"in"> value (arg<"reversed"> | kv<"offset"> | kv<"limit">)* tagArg* }
-    IfTag { tagName<"if"> value }
+    IfTag { tagName<"if"> value? }
     IncludeTag { tagName<"include"> value (renderArgument ("," renderArgument)*)? }
     IncrementTag { tagName<"increment"> (VariableName | MemberExpression) }
     InlineCommentTag { tagName<"#"> UnknownTagArg? }
@@ -74,7 +81,7 @@ tagBlock {
     RawTag { tagName<"raw"> }
     RenderTag { tagName<"render"> value (renderArgument ("," renderArgument)*)? }
     TableRowTag { tagName<"tablerow"> VariableDefinition kw<"in"> value (kv<"cols"> | kv<"offset"> | kv<"limit"> | ArgumentName | KeyValuePair)* }
-    UnlessTag { tagName<"unless"> value }
+    UnlessTag { tagName<"unless"> value? }
     UnknownTag { unknownTagName (UnknownTagArg)* }
     LiquidTag { tagName<"liquid"> (linebreak+ innerTag)* linebreak* }
 
@@ -91,10 +98,10 @@ tagBlock {
     KeyValuePair { ArgumentName ":" value }
     kv<T> { arg<T> ":" value }
     renderArgument { kw<"with"> ":"? value | KeyValuePair }
-    filteredValue { value (Filter)* }
+    filteredValue { value Filter* }
     Output { OutputStart filteredValue OutputEnd }
 
-    Filter { "|" FilterName ":" FilterArgs }
+    Filter { "|" FilterName (":" FilterArgs)? }
     FilterName { identifier }
     FilterArgs { FilterArg ("," FilterArg)* }
     FilterArg { value | KeyValuePair }

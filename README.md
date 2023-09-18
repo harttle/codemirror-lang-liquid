@@ -32,8 +32,3 @@ Start demo Web server
 ```bash
 npm run start:demo
 ```
-
-## TODO
-
-HTML/CSS/JS: https://codemirror.net/examples/mixed-language/
-indent

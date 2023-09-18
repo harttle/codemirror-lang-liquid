@@ -301,6 +301,28 @@ LiquidTemplate(
   )
 )
 
+# IfTag
+
+{% if true %}
+  true
+{% elsif false %}
+  false
+{% else %}
+  none
+{% endif %}
+
+==>
+
+LiquidTemplate(IfBlock(
+  Tag(TagStart,IfTag(TagName,Boolean),TagEnd),
+  Text,
+  Tag(TagStart,ElsifTag(TagName,Boolean),TagEnd),
+  Text,
+  Tag(TagStart,ElseTag(TagName),TagEnd),
+  Text,
+  Tag(TagStart,EndIfTag(TagName),TagEnd)
+))
+
 # ForTag
 
 {% for i in obj reversed limit : 3 offset:rows[0] %}

@@ -1,7 +1,7 @@
 import {parser} from "./syntax.grammar"
 import {parseMixed} from "@lezer/common"
 import {html} from "@codemirror/lang-html"
-import {Language, LRLanguage, LanguageSupport, indentNodeProp, foldNodeProp, foldInside, delimitedIndent} from "@codemirror/language"
+import {Language, LRLanguage, LanguageSupport, indentNodeProp, foldNodeProp, foldInside, delimitedIndent, TreeIndentContext} from "@codemirror/language"
 import {highlight} from "./highlight"
 import {liquidCompletion} from "./autocompletion"
 
@@ -9,20 +9,24 @@ export const BaseLiquidLanguage = LRLanguage.define({
   parser: parser.configure({
     props: [
       indentNodeProp.add({
-        // TODO tag indent
-        // Application: delimitedIndent({closing: ")", align: false})
+        Tag: delimitedIndent({closing: "%}"}),
+        "UnlessTag ForTag TablerowTag CaptureTag": directiveIndent(/^\s*(\{%-?\s*)?end\w/),
+        IfTag: directiveIndent(/^\s*(\{%-?\s*)?(endif|else|elsif)\b/),
+        CaseTag: directiveIndent(/^\s*(\{%-?\s*)?(endcase|when)\b/),
       }),
       foldNodeProp.add({
-        // TODO tag fold
-        // Application: foldInside
+        "IfBlock UnlessBlock ForBlock TablerowBlock CaptureBlock CaseBlock RawBlock CommentBlock"(tree) {
+          let first = tree.firstChild, last = tree.lastChild!
+          if (!first) return null
+          return {from: first.to, to: last.from}
+        }
       }),
       highlight
     ]
   }),
   languageData: {
-    commentTokens: { block: { open: "{% comment %}", close: "{% endcomment %}" } },
-    indentOnInput: /^\s*(<\/\w+\W)$/,
-    wordChars: "_",
+    commentTokens: { line: "#", block: { open: "{% comment %}", close: "{% endcomment %}" } },
+    indentOnInput: /^\s*{%-?\s*(?:end|elsif|else|when|)$/
   }
 })
 
@@ -34,6 +38,13 @@ export const LiquidLanguage = BaseLiquidLanguage.configure({
     overlay: n => n.name == "Text" || n.name == "RawText"
   } : null)
 }, "liquid")
+
+function directiveIndent(except: RegExp) {
+  return (context: TreeIndentContext) => {
+    let back = except.test(context.textAfter)
+    return context.lineIndent(context.node.from) + (back ? 0 : context.unit)
+  }
+}
 
 function bracketsSupport(lang: Language) {
   return lang.data.of({closeBrackets: {brackets: "(['\""}})
