@@ -1,6 +1,6 @@
 {
   "name": "codemirror-lang-liquid",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Liquid language support for CodeMirror",
   "scripts": {
     "build": "rollup -c",
