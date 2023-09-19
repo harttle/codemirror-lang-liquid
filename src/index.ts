@@ -1,12 +1,16 @@
 import {parser} from "./syntax.grammar"
 import {parseMixed} from "@lezer/common"
-import {html} from "@codemirror/lang-html"
+import {htmlLanguage, html} from "@codemirror/lang-html"
 import {Language, LRLanguage, LanguageSupport, indentNodeProp, foldNodeProp, foldInside, delimitedIndent, TreeIndentContext} from "@codemirror/language"
 import {highlight} from "./highlight"
 import {liquidCompletion} from "./autocompletion"
 
-export const BaseLiquidLanguage = LRLanguage.define({
+export const LiquidLanguage = LRLanguage.define({
   parser: parser.configure({
+    wrap: parseMixed(node => node.type.isTop ? {
+      parser: htmlLanguage.parser,
+      overlay: n => n.name == "Text" || n.name == "RawText"
+    } : null),
     props: [
       indentNodeProp.add({
         Tag: delimitedIndent({closing: "%}"}),
@@ -15,11 +19,7 @@ export const BaseLiquidLanguage = LRLanguage.define({
         CaseTag: directiveIndent(/^\s*(\{%-?\s*)?(endcase|when)\b/),
       }),
       foldNodeProp.add({
-        "IfBlock UnlessBlock ForBlock TablerowBlock CaptureBlock CaseBlock RawBlock CommentBlock"(tree) {
-          let first = tree.firstChild, last = tree.lastChild!
-          if (!first) return null
-          return {from: first.to, to: last.from}
-        }
+        "IfBlock UnlessBlock ForBlock TablerowBlock CaptureBlock CaseBlock RawBlock CommentBlock": foldInside
       }),
       highlight
     ]
@@ -29,15 +29,6 @@ export const BaseLiquidLanguage = LRLanguage.define({
     indentOnInput: /^\s*{%-?\s*(?:end|elsif|else|when|)$/
   }
 })
-
-const htmlLanguageSupport = html()
-
-export const LiquidLanguage = BaseLiquidLanguage.configure({
-  wrap: parseMixed(node => node.type.isTop ? {
-    parser: htmlLanguageSupport.language.parser,
-    overlay: n => n.name == "Text" || n.name == "RawText"
-  } : null)
-}, "liquid")
 
 function directiveIndent(except: RegExp) {
   return (context: TreeIndentContext) => {
@@ -53,7 +44,8 @@ function bracketsSupport(lang: Language) {
 export function Liquid() {
   return new LanguageSupport(LiquidLanguage, [
     liquidCompletion,
-    bracketsSupport(htmlLanguageSupport.language),
-    bracketsSupport(BaseLiquidLanguage)
+    bracketsSupport(htmlLanguage),
+    bracketsSupport(LiquidLanguage),
+    html().support
   ])
 }

@@ -53,11 +53,16 @@ const outputCompletion = ifNotIn(["Tag", "Output"], completeFromList([{label: "{
 
 function ifTagNameCompletion(nodes: string[], tagNames: string[], type: string) {
   return ifIn(nodes, completeFromList(tagNames.map(tagName => ({label: tagName, type, apply: (view, completion, from, to) => {
-    const insert = isNothingAfter(view, to) ? `${tagName} %}` : tagName
+    const appendTagEnd = isNothingAfter(view, to)
+    const insert = appendTagEnd ? `${tagName} %}` : tagName
     view.dispatch(view.state.update({
       ...insertCompletionText(view.state, insert, from, to),
       annotations: pickedCompletion.of(completion)
     }))
+    if (appendTagEnd) {
+      const cursor = view.state.selection.main;
+      view.dispatch({selection: view.moveByGroup(cursor, false)})
+    }
   }}))))
 }
 
@@ -66,11 +71,12 @@ function ifCompletion(nodes: string[], tagNames: string[], type: string) {
 }
 
 function isNothingAfter(view: EditorView, begin: number) {
-    for (let iter = view.state.doc.iterRange(begin); !iter.next().done;) {
-      if (["\t", " "].includes(iter.value)) continue
-      else if (iter.lineBreak) return true
-      else return false
-    }
+  for (let iter = view.state.doc.iterRange(begin); !iter.next().done;) {
+    if (["\t", " "].includes(iter.value)) continue
+    else if (iter.lineBreak) return true
+    else return false
+  }
+  return true
 }
 
 export const liquidCompletion = autocompletion({
