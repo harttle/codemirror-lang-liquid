@@ -1,5 +1,4 @@
-import { htmlCompletionSource } from "@codemirror/lang-html"
-import {pickedCompletion, insertCompletionText, autocompletion, ifIn, ifNotIn, completeFromList} from "@codemirror/autocomplete"
+import {CompletionSource, pickedCompletion, insertCompletionText, autocompletion, ifIn, ifNotIn, completeFromList} from "@codemirror/autocomplete"
 import {EditorView} from "@codemirror/view"
 
 const TagNames = [
@@ -79,12 +78,10 @@ function isNothingAfter(view: EditorView, begin: number) {
   return true
 }
 
-export const liquidCompletion = autocompletion({
-  override: [
-    ...tagNameCompletions,
-    ...argumentCompletions,
-    filterNameCompletion,
-    valueCompletion,
-    outputCompletion,
-    ifNotIn(["Tag", "Output"], htmlCompletionSource)]
-})
+export const liquidCompletions: CompletionSource[] = [
+  ...tagNameCompletions,
+  ...argumentCompletions,
+  filterNameCompletion,
+  valueCompletion,
+  outputCompletion
+]

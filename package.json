@@ -15,12 +15,13 @@
     "import": "./dist/index.js",
     "require": "./dist/index.cjs"
   },
+  "author": "Jun Yang<harttle@harttle.com>",
   "types": "dist/index.d.ts",
   "sideEffects": false,
   "dependencies": {
     "@codemirror/autocomplete": "^6.9.1",
     "@codemirror/lang-html": "github:codemirror/lang-html",
-    "@codemirror/language": "^6.0.0",
+    "@codemirror/language": "^6.9.1",
     "@lezer/highlight": "^1.0.0",
     "@lezer/lr": "^1.0.0"
   },

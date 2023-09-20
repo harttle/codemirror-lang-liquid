@@ -1,9 +1,9 @@
 import {parser} from "./syntax.grammar"
 import {parseMixed} from "@lezer/common"
 import {htmlLanguage, html} from "@codemirror/lang-html"
-import {Language, LRLanguage, LanguageSupport, indentNodeProp, foldNodeProp, foldInside, delimitedIndent, TreeIndentContext} from "@codemirror/language"
+import {LRLanguage, LanguageSupport, indentNodeProp, foldNodeProp, foldInside, delimitedIndent, TreeIndentContext} from "@codemirror/language"
 import {highlight} from "./highlight"
-import {liquidCompletion} from "./autocompletion"
+import {liquidCompletions} from "./autocompletion"
 
 export const LiquidLanguage = LRLanguage.define({
   parser: parser.configure({
@@ -37,15 +37,10 @@ function directiveIndent(except: RegExp) {
   }
 }
 
-function bracketsSupport(lang: Language) {
-  return lang.data.of({closeBrackets: {brackets: "(['\""}})
-}
-
 export function Liquid() {
   return new LanguageSupport(LiquidLanguage, [
-    liquidCompletion,
-    bracketsSupport(htmlLanguage),
-    bracketsSupport(LiquidLanguage),
-    html().support
+    ...liquidCompletions.map(autocomplete => LiquidLanguage.data.of({autocomplete})),
+    htmlLanguage.data.of({closeBrackets: {brackets: "(['\""}}),
+    html().support,
   ])
 }
