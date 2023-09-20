@@ -1,5 +1,5 @@
 import {EditorView, basicSetup} from "codemirror"
-import {Liquid} from "../dist"
+import {LiquidHTML} from "../dist"
 
 const doc = `{% layout "main.liquid" with "dark", url: "/" %}
 {%- assign people = "alice, bob, carol" | split: ", " -%}
@@ -26,6 +26,6 @@ const doc = `{% layout "main.liquid" with "dark", url: "/" %}
 
 let editor = new EditorView({
   doc,
-  extensions: [basicSetup, Liquid()],
+  extensions: [basicSetup, LiquidHTML()],
   parent: document.body
 })

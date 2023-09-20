@@ -5,12 +5,12 @@ import {LRLanguage, LanguageSupport, indentNodeProp, foldNodeProp, foldInside, d
 import {highlight} from "./highlight"
 import {liquidCompletions} from "./autocompletion"
 
-export const LiquidLanguage = LRLanguage.define({
+// "{" will be used to begin tag or output, not close with "}"
+const closeBrackets = { brackets: "(['\"" }
+
+export const liquidLanguage = LRLanguage.define({
+  name: "liquid",
   parser: parser.configure({
-    wrap: parseMixed(node => node.type.isTop ? {
-      parser: htmlLanguage.parser,
-      overlay: n => n.name == "Text" || n.name == "RawText"
-    } : null),
     props: [
       indentNodeProp.add({
         Tag: delimitedIndent({closing: "%}"}),
@@ -25,6 +25,7 @@ export const LiquidLanguage = LRLanguage.define({
     ]
   }),
   languageData: {
+    closeBrackets,
     commentTokens: { line: "#", block: { open: "{% comment %}", close: "{% endcomment %}" } },
     indentOnInput: /^\s*{%-?\s*(?:end|elsif|else|when|)$/
   }
@@ -37,10 +38,23 @@ function directiveIndent(except: RegExp) {
   }
 }
 
+export const liquidHTMLLanguage = liquidLanguage.configure({
+    wrap: parseMixed(node => node.type.isTop ? {
+      parser: htmlLanguage.parser,
+      overlay: n => n.name == "Text" || n.name == "RawText"
+    } : null)
+}, "liquid")
+
+const liquidCompletionExts = liquidCompletions.map(autocomplete => liquidHTMLLanguage.data.of({autocomplete}))
+
 export function Liquid() {
-  return new LanguageSupport(LiquidLanguage, [
-    ...liquidCompletions.map(autocomplete => LiquidLanguage.data.of({autocomplete})),
-    htmlLanguage.data.of({closeBrackets: {brackets: "(['\""}}),
+  return new LanguageSupport(liquidLanguage, liquidCompletionExts)
+}
+
+export function LiquidHTML() {
+  return new LanguageSupport(liquidHTMLLanguage, [
+    ...liquidCompletionExts,
+    htmlLanguage.data.of({ closeBrackets }),
     html().support,
   ])
 }
