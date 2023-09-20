@@ -1,5 +1,5 @@
 import {EditorView, basicSetup} from "codemirror"
-import {LiquidHTML} from "../dist"
+import {LiquidHTML} from "codemirror-lang-liquid"
 
 const doc = `{% layout "main.liquid" with "dark", url: "/" %}
 {%- assign people = "alice, bob, carol" | split: ", " -%}

@@ -3,7 +3,7 @@
 How to run the demo?
 
 ```bash
-npm ci
+npm install
 npm run build
 npm start
 ```
