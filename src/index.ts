@@ -3,7 +3,7 @@ import {parseMixed} from "@lezer/common"
 import {htmlLanguage, html} from "@codemirror/lang-html"
 import {LRLanguage, LanguageSupport, indentNodeProp, foldNodeProp, foldInside, delimitedIndent, TreeIndentContext} from "@codemirror/language"
 import {highlight} from "./highlight"
-import {liquidCompletions} from "./autocompletion"
+import {liquidCompletions, LiquidLanguageAutoCompletionOptions} from "./autocompletion"
 
 // "{" will be used to begin tag or output, not close with "}"
 const closeBrackets = { brackets: "(['\"" }
@@ -45,15 +45,19 @@ export const liquidHTMLLanguage = liquidLanguage.configure({
     } : null)
 }, "liquid")
 
-const liquidCompletionExts = liquidCompletions.map(autocomplete => liquidHTMLLanguage.data.of({autocomplete}))
-
-export function Liquid() {
-  return new LanguageSupport(liquidLanguage, liquidCompletionExts)
+function liquidCompletionExts(options: LiquidLanguageOptions) {
+  return liquidCompletions(options).map(autocomplete => liquidHTMLLanguage.data.of({autocomplete}))
 }
 
-export function LiquidHTML() {
+export interface LiquidLanguageOptions extends LiquidLanguageAutoCompletionOptions {}
+
+export function Liquid(options: LiquidLanguageOptions) {
+  return new LanguageSupport(liquidLanguage, liquidCompletionExts(options))
+}
+
+export function LiquidHTML(options: LiquidLanguageOptions) {
   return new LanguageSupport(liquidHTMLLanguage, [
-    ...liquidCompletionExts,
+    ...liquidCompletionExts(options),
     htmlLanguage.data.of({ closeBrackets }),
     html().support,
   ])

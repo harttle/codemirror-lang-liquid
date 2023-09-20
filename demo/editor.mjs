@@ -24,8 +24,17 @@ const doc = `{% layout "main.liquid" with "dark", url: "/" %}
 {% assign foo="bar" %}
 {% endcomment %}`
 
-let editor = new EditorView({
+const context = {
+  foo: 'FOO',
+  "space between": "SPACE BETWEEN"
+}
+
+new EditorView({
   doc,
-  extensions: [basicSetup, LiquidHTML()],
+  extensions: [basicSetup, LiquidHTML({
+    filterNames: ["customFilter"],
+    tagNames: ["customTag"],
+    variableNames: Object.keys(context)
+  })],
   parent: document.body
 })
