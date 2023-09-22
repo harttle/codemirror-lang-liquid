@@ -10,7 +10,7 @@
   "description": "",
   "dependencies": {
     "codemirror": "^6.0.1",
-    "codemirror-lang-liquid": "latest"
+    "codemirror-lang-liquid": "^1.0.0"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^15.2.1",
