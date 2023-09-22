@@ -1,4 +1,37 @@
 <!doctype html>
-<meta charset=utf8>
-<h1>Liquid language pack demo</h1>
+<head>
+  <meta charset=utf8>
+  <style>
+  body {
+      margin: 0;
+      padding: 8px;
+      background: black;
+      color: white;
+  }
+  a {
+    color: #bbb;
+  }
+  a:hover {
+    color: white;
+  }
+  h1 {
+    display: flex;
+    align-items: center;
+  }
+  h1 .title {
+    flex-grow: 1;
+  }
+  h1 a {
+    font-size: 18px;
+  }
+  </style>
+</head>
+<body>
+<h1>
+  <span class="title">Liquid editor demo with CodeMirror</span>
+  <small>
+    <a href="https://github.com/harttle/codemirror-lang-liquid" _target="blank">Github</a>
+  </small>
+</h1>
 <script src="editor.bundle.js"></script>
+</body>

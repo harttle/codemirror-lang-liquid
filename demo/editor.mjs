@@ -1,5 +1,6 @@
 import {EditorView, basicSetup} from "codemirror"
 import {LiquidHTML} from "codemirror-lang-liquid"
+import {dracula} from 'thememirror';
 
 const doc = `{% layout "main.liquid" with "dark", url: "/" %}
 {%- assign people = "alice, bob, carol" | split: ", " -%}
@@ -35,6 +36,6 @@ new EditorView({
     filterNames: ["customFilter"],
     tagNames: ["customTag"],
     variableNames: Object.keys(context)
-  })],
+  }), dracula],
   parent: document.body
 })
